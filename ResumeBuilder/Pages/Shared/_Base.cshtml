@@ -1,0 +1,146 @@
+﻿
+@using Microsoft.AspNetCore.Identity
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top" lang="@CultureHelper.GetCurrentCulture()" dir="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")" class="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta NAME="AUTHOR" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="DESCRIPTION" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="KEYWORDS" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="ROBOTS" CONTENT="INDEX,NOFOLLOW">
+
+    <title>@ViewBag.Title</title>
+    <link href="~/images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+    <link href="~/lib/animate/animate.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/tailwind.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+
+
+    <link href="~/bundle.min.css" rel="stylesheet" />
+    <script src="~/bundle.min.js"></script>
+
+</head>
+<body>
+    <div x-data="globaldata" class="h-screen bg-gray-50 flex overflow-hidden">
+        <!-- Narrow sidebar -->
+        <div class="hidden w-28 bg-primary overflow-y-auto md:block">
+            <div class="w-full py-6 flex flex-col items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="@Configuration["AppSettings:HomePageUrl"]">
+                        <img class="h-18 w-auto" src="~/images/logovertical.png" alt="HRA">
+                    </a>
+                </div>
+                <div class="flex-1 mt-6 w-full px-2 space-y-1">
+                    <!--Add below to show which page is selected-->
+                    <!-- Current: "bg-gray-600 text-white"-->
+                    <!--Default: "text-gray-100 hover:bg-gray-800 hover:text-white" -->
+                    <partial name="_SideBarMenu" model="null" />
+
+
+                </div>
+            </div>
+        </div>
+
+        <!--
+          Mobile menu
+
+          Off-canvas menu for mobile, show/hide based on off-canvas menu state.
+        -->
+        <div class="md:hidden" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 z-40 flex">
+                <!--
+                  Off-canvas menu overlay, show/hide based on off-canvas menu state.
+
+                  Entering: "transition-opacity ease-linear duration-300"
+                    From: "opacity-0"
+                    To: "opacity-100"
+                  Leaving: "transition-opacity ease-linear duration-300"
+                    From: "opacity-100"
+                    To: "opacity-0"
+                -->
+                <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+
+                <!--
+                  Off-canvas menu, show/hide based on off-canvas menu state.
+
+                  Entering: "transition ease-in-out duration-300 transform"
+                    From: "-translate-x-full"
+                    To: "translate-x-0"
+                  Leaving: "transition ease-in-out duration-300 transform"
+                    From: "translate-x-0"
+                    To: "-translate-x-full"
+                -->
+                <div class="relative max-w-xs w-full bg-gray-700 pt-5 pb-4 flex-1 flex flex-col">
+                    <!--
+                      Close button, show/hide based on off-canvas menu state.
+
+                      Entering: "ease-in-out duration-300"
+                        From: "opacity-0"
+                        To: "opacity-100"
+                      Leaving: "ease-in-out duration-300"
+                        From: "opacity-100"
+                        To: "opacity-0"
+                    -->
+                    <div class="absolute top-1 right-0 -mr-14 p-1">
+                        <button type="button" class="h-12 w-12 rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white">
+                            <!-- Heroicon name: outline/x -->
+                            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span class="sr-only">Close sidebar</span>
+                        </button>
+                    </div>
+
+                    <div class="flex-shrink-0 px-4 flex items-center">
+                        <img class="h-18 w-auto" src="~/images/logovertical.png" alt="HRA">
+                    </div>
+                    <div class="mt-5 flex-1 h-0 px-2 overflow-y-auto">
+                        <nav class="h-full flex flex-col">
+                            <div class="space-y-1">
+                                <!-- Current: "bg-gray-800 text-white", Default: "text-gray-100 hover:bg-gray-800 hover:text-white" -->
+                                <partial name="_SideBarMenu" model="null" />
+
+
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="flex-shrink-0 w-14" aria-hidden="true">
+                    <!-- Dummy element to force sidebar to shrink to fit close icon -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Content area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            @RenderBody()
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('globaldata', () => ({
+                open: false,
+                toggle() {
+                    this.open = !this.open
+                }
+            }))
+
+        });
+    </script>
+    @RenderSection("Scripts", false)
+
+
+
+</body>
+</html>

@@ -1,0 +1,2136 @@
+﻿@page
+@using ResumeBuilder.Dto
+@model ResumeBuilder.Pages.jobseekerModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@inject IViewLocalizer Localizer
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@{
+    ViewData["Title"] = "Job Seeker";
+    string dropdownTextVale = "EnTitle";
+    string dropdownTextValeSec = "EnName";
+    string _alignPagging = "center";
+    if (CultureHelper.IsRighToLeft())
+    {
+        dropdownTextVale = "ArTitle";
+        dropdownTextValeSec = "ArName";
+        _alignPagging = "center";
+    }
+}
+<script src="~/lib/excelexport/exceljs.min.js"></script>
+<script src="~/lib/excelexport/FileSaver.min.js"></script>
+<script src="~/lib/excelexport/polyfill.min.js"></script>
+
+<style>
+    .dx-dropdowneditor-overlay .dx-overlay-content {
+        min-width: 400px;
+    }
+
+    .dx-pages {
+        float: none !important;
+        text-align: @_alignPagging;
+    }
+</style>
+
+<header class="w-full">
+    <div class="relative z-10 flex-shrink-0 h-16 bg-white border-b border-gray-200 shadow-sm flex">
+        <button type="button" class="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 md:hidden">
+            <span class="sr-only">Open sidebar</span>
+            <!-- Heroicon name: outline/menu-alt-2 -->
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+        </button>
+        <div class="flex-1 flex justify-between px-4 sm:px-6">
+            <div class="flex-1 flex">
+                <form class="w-full flex md:ml-0" action="#" method="GET">
+                    <label for="search_field" class="sr-only">Search all files</label>
+                    <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                            <!-- Heroicon name: solid/search -->
+                            <svg class="flex-shrink-0 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input name="search_field" onInput="DevAV.employees.filterDataByText(event)" id="search_field" class="h-full w-full border-transparent py-2 pl-8 pr-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400" placeholder="@SharedLocalizer["Search"]" type="search">
+                        @*@(Html.DevExtreme().TextBox()
+                                .Value("")
+                                .Width(220)
+                                .Height(30)
+                                .ValueChangeEvent("keyup")
+                                .OnValueChanged("DevAV.employees.filterDataByText")
+                            )*@
+                    </div>
+                </form>
+            </div>
+            <div class="ml-2 flex items-center space-x-4 sm:ml-6 sm:space-x-6">
+                <!-- Profile dropdown -->
+                <div class="relative flex-shrink-0">
+                    <div>
+                        @*<button type="button"
+                                    x-data x-on:click="toggle"
+                                    class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                <span class="sr-only">Open user menu</span>
+                                <img class="h-8 w-8 rounded-full" src="~/images/user.png" alt="loggedin user">
+                            </button>*@
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <div class="navbar-end">
+                                <div class="navbar-item">
+                                    <div class="buttons">
+                                        <a class="button is-primary pl-4 pr-4">
+                                            <strong>@User.Identity.Name!</strong>
+                                        </a>
+                                        <a class="button is-light pl-8 pr-4" asp-page="/Logout">
+                                            @SharedLocalizer["LogOut"]
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                @await Html.PartialAsync("Partial/_ChangeLanguagePartial")
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="flex-1 flex items-stretch overflow-hidden" x-data="pagedata">
+    <div class=" flex-auto z-0 overflow-y-auto focus:outline-none">
+        <section aria-labelledby="primary-heading" class="min-w-0 flex-1 h-full flex flex-col overflow-hidden lg:order-last">
+            <aside class="xl:order-first xl:flex xl:flex-col flex-shrink-0 border-r border-gray-200 h-screen">
+                <div class="p-3">
+                    <h2 class="text-lg font-medium text-gray-900 ">@SharedLocalizer["ResumeList"]</h2>
+                    <table with="100%">
+                        <tr>
+                            <td>
+                                @if (User.Identity.IsAuthenticated && User.IsInRole(JobSeekerRolesSettings.JobSeekerRolesSetting.AdminRole))
+                                {
+                                    <button type="button" onclick="DevAV.employees.createNewEmployee()" class="flex bg-gray-600 p-1 rounded-full items-center justify-center text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                        <!-- Heroicon name: outline/plus -->
+                                        <svg class="h-6 w-6 pl-4 pr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        <span class="sr-only">@SharedLocalizer["New"]</span>
+                                    </button>
+                                }
+                            </td>
+                            <td>
+                                <span class=" text-sm text-gray-600">
+
+                                    @(Html.DevExtreme().Button()
+        .Icon("export")
+        .Hint("Export")
+        .Width(32)
+        .Height(30)
+        .ElementAttr("class", "button-export")
+        .OnClick("exportGrids")
+    )
+                                </span>
+                            </td>
+                            <td>
+                                @(Html.DevExtreme().Button()
+        .Icon("filter")
+        .Hint("Filter")
+        .Width(32)
+        .Height(30)
+        .ElementAttr("class", "button-filter")
+        .OnClick("DevAV.employees.ShowResumeFilterPopup")
+    )
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- JobSeeker list -->
+                <nav class="flex-1  overflow-y-auto" aria-label="Directory">
+                    <div class="relative">
+                        <div class="bg-white">
+                            <div class="text-center">
+                                @(Html.DevExtreme().DataGrid<JobSeekerResumesViewModel>()
+    .ID("grid").Width(375)
+    .ShowBorders(true).RtlEnabled(CultureHelper.IsRighToLeft())
+    .DataSource(d => d.Mvc().Controller("HcResumeBank").LoadAction("Get").Key("Rid")
+    .LoadParams(new
+    {
+
+        LocationId = new JS("getLocationId"),
+        EducationGroupId = new JS("getEducationGroupId"),
+        EducationTypeId = new JS("getEducationTypeId"),
+        EducationMajorId = new JS("getEducationMajorId"),
+        StatusId = new JS("getStatusId"),
+        EmiratesId = new JS("getfilterEmiratesId"),
+        JobSeekerId = new JS("getfilterjobSeekerId"),
+        CommaSepratedFilter = new JS("getCommaSepratedFilter")
+    })
+    .DeleteAction("Delete"))
+    .RemoteOperations(true)
+     .ShowRowLines(true)
+    .RowAlternationEnabled(true)
+    .DataSourceOptions(dsoption => dsoption.Paginate(true).PageSize(10))
+      .HeaderFilter(f => f.Visible(false))
+         // .ColumnChooser(c => c.Enabled(true))
+         //.SearchPanel(search=>search.Visible(true).Placeholder(SharedLocalizer["Search"]))
+         .AllowColumnReordering(true)
+    .AllowColumnResizing(true)
+    .LoadPanel(p => p.Enabled(true))
+     .StateStoring(s => s
+        .Enabled(false)
+        .Type(StateStoringType.LocalStorage)
+        .StorageKey(System.DateTime.Now.ToShortDateString())
+    )
+    .Paging(paging => paging.PageSize(10))
+     // .Pager(pager => pager.ShowNavigationButtons(true))
+     .Pager(pager =>
+     {
+         pager.Visible(true);
+         pager.ShowPageSizeSelector(false);
+         pager.ShowInfo(false);
+         pager.ShowNavigationButtons(true);
+     })
+    //   .FilterRow(fr => fr.Visible(true))
+    .Selection(s => s
+        .Mode(SelectionMode.Single)
+    ).Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Row);
+        //if (User.IsInRole(JobSeekerRolesSettings.JobSeekerRolesSetting.AdminRole))
+        //{
+
+        //}
+        editing.AllowDeleting(false);
+        editing.UseIcons(true);
+    })
+    //  .Height(348)
+    //  .OnSelectionChanged("")
+    //  .OnContentReady("")
+    .Columns(columns =>
+    {
+        if(CultureHelper.IsRighToLeft())
+        {
+            columns.AddFor(m => m.FullNameAr).AllowHeaderFiltering(false).AllowSearch(false).Width(375).Alignment(HorizontalAlignment.Right).Caption(SharedLocalizer[""]).CellTemplate(@<text>
+            <div class="relative px-3 py-3 flex items-center space-x-3 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="~/images/user.png" alt="">
+                                        </div>
+                                        <div class="flex-1 min-w-0  px-2">
+                                            <a href="#" class="focus:outline-none"> </a>
+                                                <!-- Extend touch target to entire panel -->
+                                                <span class="absolute inset-0" aria-hidden="true"></span>
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    <%=data.FirstNameAr%>
+                                                    <%=data.LastNameAr%>
+                                                </p>
+                                             <p class="text-sm font-medium bg-green-100 text-green-800 truncate">
+                                                    <%=data.JobSeekerId%>
+                                                </p>
+                                            <span class="inline-flex items-center px-0 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+  <%=data.StatusTitleAr%>
+</span>
+                                        </div>
+                                    </div></text>);
+           columns.AddFor(m => m.FirstNameAr).Width(0).Visible(false).Caption(SharedLocalizer["FirstName"]);
+            columns.AddFor(m => m.LastNameAr).Width(0).Visible(false).Caption(SharedLocalizer["LastName"]);
+            columns.AddFor(m => m.StatusTitleAr).Width(0).Visible(false).Caption(SharedLocalizer["LastStatus"]).AllowSearch(false);
+        }
+        else
+        {
+            columns.AddFor(m => m.FullName).HeaderFilter(z=>z.AllowSearch(false)).AllowHeaderFiltering(false).AllowSearch(false).Width(375).Caption(SharedLocalizer[""]).CellTemplate(@<text>
+            <div class="relative px-3 py-3 flex items-center space-x-3 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="~/images/user.png" alt="">
+                                        </div>
+                                        <div class="flex-1 min-w-0 px-2">
+                                            <a href="#" class="focus:outline-none"> </a>
+                                                <!-- Extend touch target to entire panel -->
+                                                <span class="absolute inset-0" aria-hidden="true"></span>
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    <%=data.FirstName%>
+                                                    <%=data.LastName%>
+                                                </p>
+                                                <p class="text-sm font-medium bg-green-100 text-green-800 truncate">
+                                                    <%=data.JobSeekerId%>
+                                                </p>
+
+                                            <span class="inline-flex items-center px-0 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+  <%=data.StatusTitle%>
+</span>
+
+                                        </div>
+                                    </div></text>);
+           columns.AddFor(m => m.FirstName).Width(0).Visible(false).Caption(SharedLocalizer["FirstName"]);
+            columns.AddFor(m => m.LastName).Width(0).Visible(false).Caption(SharedLocalizer["LastName"]);
+            columns.AddFor(m => m.StatusTitle).Width(0).Visible(false).Caption(SharedLocalizer["LastStatus"]).AllowSearch(false);
+        }
+        columns.AddFor(m => m.JobSeekerId).Width(0).Visible(true).Caption(SharedLocalizer["JobSeekerId"]);
+        columns.AddFor(m => m.EmiratesId).Width(0).Visible(true).Caption(SharedLocalizer["EmiratesID"]);
+        columns.AddFor(m => m.EmailId).Width(0).Visible(false).Caption(SharedLocalizer["Email"]);
+        columns.AddFor(m => m.GenderId).Width(0).Visible(false).Caption(SharedLocalizer["Gender"]);
+        columns.AddFor(m => m.PassportNumber).Width(0).Visible(true).Caption(SharedLocalizer["PassportNumber"]);
+        columns.AddFor(m => m.Rid).SortOrder(SortOrder.Desc).Width(0).Visible(false).Caption(SharedLocalizer["ResumeID"]);
+        columns.AddFor(m => m.CreatedDate).Width(0).Visible(false);
+        columns.AddFor(m => m.LastUpdateDate).Width(0).Visible(false);
+
+    }).ShowColumnHeaders(false)
+    .OnSelectionChanged("DevAV.employees.selectRow")
+    .OnContentReady("DevAV.employees.selectFirstRow")
+    )
+                            </div>
+
+                            <!--Add or Edit resume-->
+                            @(Html.DevExtreme().Popup()
+        .ID("details-form-popup")
+        .Visible(false).RtlEnabled(CultureHelper.IsRighToLeft())
+        .Width("auto")
+        .Height("auto")
+        .ShowTitle(false)
+        .ShowCloseButton(false)
+        .ContentTemplate(@<text>
+        <div id="edit-employee">
+            <div class="edit-label" id="grid-details-label"></div>
+            @using (Html.BeginForm("InsertResume", "Resume", FormMethod.Post, new { id = "saveandupdate" })) {
+            @(Html.DevExtreme().Form<ResumeBuilder.Dto.Resume>()
+                            .ID("details-form").RtlEnabled(CultureHelper.IsRighToLeft())
+                            .ShowColonAfterLabel(false)
+                            .ShowValidationSummary(true)
+                            .LabelLocation(FormLabelLocation.Left)
+                            .ScrollingEnabled(true)
+                            .Height(400)
+                            // .ScreenByWidth("DevAV.screenByWidth")
+                            .Items(items =>
+                            {
+                                items.AddGroup()
+                                    .ColCount(2)
+                                    .Items(groupItems =>
+                                    {
+                                        groupItems.AddSimpleFor(m => m.Salutation)
+                                          .Label(l => l.Text(SharedLocalizer["Prefix"]).Alignment(HorizontalAlignment.Left))
+                                          .Editor(e => e
+                                          .SelectBox()
+                                               .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetSalutation").LoadMode(DataSourceLoadMode.Raw))
+                                             .DisplayExpr(dropdownTextValeSec).ValueExpr("Id")
+                                      ).ColSpan(2);
+
+                                        groupItems.AddSimpleFor(m => m.FirstName)
+                                            .Label(l => l.Text(SharedLocalizer["FirstName"]).Alignment(HorizontalAlignment.Left))
+                                            .Editor(e => e.TextBox()
+                                            );
+                                        groupItems.AddSimpleFor(m => m.FirstNameAr)
+                                        .Label(l => l.Text(SharedLocalizer["FirstNameAr"]).Alignment(HorizontalAlignment.Left))
+                                        .Editor(e => e.TextBox()
+                                        );
+
+                                        groupItems.AddSimpleFor(m => m.MiddleName)
+                                           .Label(l => l.Text(SharedLocalizer["MiddelName"]).Alignment(HorizontalAlignment.Left))
+                                           .Editor(e => e.TextBox()
+                                           );
+
+                                        groupItems.AddSimpleFor(m => m.MiddleNameAr)
+                                            .Label(l => l.Text(SharedLocalizer["MiddelNameAr"]).Alignment(HorizontalAlignment.Left))
+                                            .Editor(e => e.TextBox()
+                                            );
+
+                                        groupItems.AddSimpleFor(m => m.ThridName)
+                                          .Label(l => l.Text(SharedLocalizer["ThirdName"]).Alignment(HorizontalAlignment.Left))
+                                          .Editor(e => e.TextBox()
+                                          );
+                                        groupItems.AddSimpleFor(m => m.ThridNameAr)
+                                           .Label(l => l.Text(SharedLocalizer["ThirdNameAr"]).Alignment(HorizontalAlignment.Left))
+                                           .Editor(e => e.TextBox()
+                                           );
+
+
+
+                                        groupItems.AddSimpleFor(m => m.LastName)
+                                            .Label(l => l.Text(SharedLocalizer["LastName"]).Alignment(HorizontalAlignment.Left))
+                                            .Editor(e => e.TextBox()
+                                            );
+
+                                        groupItems.AddSimpleFor(m => m.LastNameAr)
+                                          .Label(l => l.Text(SharedLocalizer["LastNameAr"]).Alignment(HorizontalAlignment.Left))
+                                          .Editor(e => e.TextBox()
+                                          );
+
+
+                                        groupItems.AddSimpleFor(m => m.FamilyName)
+                                            .Label(l => l.Text(SharedLocalizer["FamilyName"]).Alignment(HorizontalAlignment.Left))
+                                            .Editor(e => e.TextBox()
+                                            );
+
+                                        groupItems.AddSimpleFor(m => m.FamilyNameAr)
+                                          .Label(l => l.Text(SharedLocalizer["FamilyNameAr"]).Alignment(HorizontalAlignment.Left))
+                                          .Editor(e => e.TextBox()
+                                          );
+
+
+                                        groupItems.AddSimpleFor(m => m.DOB)
+                                         .Label(l => l.Text(SharedLocalizer["Dob"]).Alignment(HorizontalAlignment.Left))
+                                         .Editor(e => e
+                                             .DateBox().DisplayFormat("dd MMM yyyy")
+                                             .Max(DateTime.Now.AddYears(-10))
+                                        .Min(new DateTime(1900, 1, 1))
+                                             //   .Value(new DateTime(1981, 4, 27))
+                                             .Width("100%")
+                                             .PickerType(DateBoxPickerType.Calendar)
+                                         );
+
+
+
+
+                                        groupItems.AddSimpleFor(m => m.GenderId)
+                                         .Label(l => l.Text(SharedLocalizer["Gender"]).Alignment(HorizontalAlignment.Left))
+                                         .Editor(e => e
+                                         .SelectBox()
+                                             .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetGender").LoadMode(DataSourceLoadMode.Raw))
+                                             .DisplayExpr(dropdownTextValeSec).ValueExpr("Id")
+                                     );
+
+                                        groupItems.AddSimpleFor(m => m.PlaceOfBirth)
+                                        .Label(l => l.Text(SharedLocalizer["PlaceOfBirth"]).Alignment(HorizontalAlignment.Left))
+                                        .Editor(e => e
+                                        .SelectBox()
+                                            .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetCity").LoadMode(DataSourceLoadMode.Raw))
+                                            .DisplayExpr(dropdownTextVale).ValueExpr("Id")
+                                    );
+                                        groupItems.AddSimpleFor(m => m.MartialStatus)
+                                        .Label(l => l.Text(SharedLocalizer["MartialStatus"]).Alignment(HorizontalAlignment.Left))
+                                        .Editor(e => e
+                                        .SelectBox()
+                                            .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetMartialStatus").LoadMode(DataSourceLoadMode.Raw))
+                                             .DisplayExpr(dropdownTextValeSec).ValueExpr("Id")
+                                    );
+
+                                        groupItems.AddSimpleFor(m => m.KAQNo)
+                                        .Label(l => l.Text(SharedLocalizer["Kaqno"]).Alignment(HorizontalAlignment.Left))
+                                        .Editor(e => e.TextBox()
+                                        );
+
+                                        groupItems.AddSimpleFor(m => m.FamilyNo)
+                                      .Label(l => l.Text(SharedLocalizer["FamilyNo"]).Alignment(HorizontalAlignment.Left))
+                                      .Editor(e => e.TextBox()
+                                      );
+
+                                        groupItems.AddSimpleFor(m => m.TownNo)
+                                    .Label(l => l.Text(SharedLocalizer["TownNo"]).Alignment(HorizontalAlignment.Left))
+                                    .Editor(e => e.TextBox()
+                                    );
+
+                                        groupItems.AddSimpleFor(m => m.KAQPageNo)
+                                .Label(l => l.Text(SharedLocalizer["KaqpageNo"]).Alignment(HorizontalAlignment.Left))
+                                .Editor(e => e.TextBox()
+                                );
+
+
+                                        groupItems.AddSimpleFor(m => m.EmiratesId)
+                              .Label(l => l.Text(SharedLocalizer["EmiratesID"]).Alignment(HorizontalAlignment.Left))
+                              .Editor(e => e.TextBox());
+                                        groupItems.AddSimpleFor(m => m.EmiratesIdExpiryDate)
+                                      .Label(l => l.Text(SharedLocalizer["EmiratesIDExpiryDate"]).Alignment(HorizontalAlignment.Left))
+                                      .Editor(e => e
+                                          .DateBox()
+                                          .Width("100%")
+
+                                          .PickerType(DateBoxPickerType.Calendar)
+                                      );
+
+                                        groupItems.AddSimpleFor(m => m.PassportNumber)
+                              .Label(l => l.Text(SharedLocalizer["PassportNumber"]).Alignment(HorizontalAlignment.Left))
+                              .Editor(e => e.TextBox()
+                              );
+
+                                        groupItems.AddSimpleFor(m => m.PassportPlaceOfIssue)
+                                      .Label(l => l.Text(SharedLocalizer["PassportPlaceOfIssue"]).Alignment(HorizontalAlignment.Left))
+                                      .Editor(e => e
+                                      .SelectBox()
+                                          .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetCity").LoadMode(DataSourceLoadMode.Raw))
+                                            .DisplayExpr(dropdownTextVale).ValueExpr("Id")
+                                  );
+                                        groupItems.AddSimpleFor(m => m.UnifiedNumber)
+                             .Label(l => l.Text(SharedLocalizer["UnifiedNumber"]).Alignment(HorizontalAlignment.Left))
+                             .Editor(e => e.TextBox()
+                             );
+                                        groupItems.AddSimpleFor(m => m.Emirates)
+                                    .Label(l => l.Text(SharedLocalizer["Emirates"]).Alignment(HorizontalAlignment.Left))
+                                    .Editor(e => e
+                                    .SelectBox()
+                                         .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetEmirates").LoadMode(DataSourceLoadMode.Raw))
+                                            .DisplayExpr(dropdownTextVale).ValueExpr("Id")
+                                );
+
+                                        groupItems.AddSimpleFor(m => m.CityId)
+                                   .Label(l => l.Text(SharedLocalizer["City"]).Alignment(HorizontalAlignment.Left))
+                                   .Editor(e => e
+                                   .SelectBox()
+                                        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetCity").LoadMode(DataSourceLoadMode.Raw))
+                                            .DisplayExpr(dropdownTextVale).ValueExpr("Id")
+                               );
+
+                                        groupItems.AddSimpleFor(m => m.LocationId)
+                                   .Label(l => l.Text(SharedLocalizer["Location"]).Alignment(HorizontalAlignment.Left))
+                                   .Editor(e => e.SelectBox()
+                                       .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetLocation").LoadMode(DataSourceLoadMode.Raw))
+                                            .DisplayExpr(dropdownTextVale).ValueExpr("Id")
+                                   );
+                                        groupItems.AddSimpleFor(m => m.Address)
+                           .Label(l => l.Text(SharedLocalizer["Address"]).Alignment(HorizontalAlignment.Left))
+                           .Editor(e => e.TextBox()
+                           );
+                                        groupItems.AddSimpleFor(m => m.PoboxNo)
+                            .Label(l => l.Text(SharedLocalizer["PoBoxNo"]).Alignment(HorizontalAlignment.Left))
+                            .Editor(e => e.TextBox()
+                            );
+
+                                        groupItems.AddSimpleFor(m => m.PoboxCityId)
+                                   .Label(l => l.Text(SharedLocalizer["PoBoxCity"]).Alignment(HorizontalAlignment.Left))
+                                   .Editor(e => e
+                                   .SelectBox().ID("_PoboxCityId")
+                                        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetCity").LoadMode(DataSourceLoadMode.Raw))
+                                            .DisplayExpr(dropdownTextVale).ValueExpr("Id")
+                               );
+                                        groupItems.AddSimpleFor(m => m.EmailId)
+                       .Label(l => l.Text(SharedLocalizer["Email"]).Alignment(HorizontalAlignment.Left))
+                       .Editor(e => e.TextBox()
+                       );
+
+                                        groupItems.AddSimpleFor(m => m.MobilePhone)
+                          .Label(l => l.Text(SharedLocalizer["MobileNumber"]).Alignment(HorizontalAlignment.Left))
+                          .Editor(e => e.TextBox()
+
+                          );
+
+                                        groupItems.AddSimpleFor(m => m.LandLine)
+                         .Label(l => l.Text(SharedLocalizer["LandLine"]).Alignment(HorizontalAlignment.Left))
+                         .Editor(e => e.TextBox()
+                         );
+
+                                        groupItems.AddSimpleFor(m => m.PrimaryContact)
+                        .Label(l => l.Text(SharedLocalizer["PrimaryContact"]).Alignment(HorizontalAlignment.Left))
+                        .Editor(e => e.TextBox()
+                        );
+                                        groupItems.AddSimpleFor(m => m.Twitter)
+                          .Label(l => l.Text(SharedLocalizer["Twitter"]).Alignment(HorizontalAlignment.Left))
+                          .Editor(e => e.TextBox()
+                          );
+                                        groupItems.AddSimpleFor(m => m.Linkedin)
+                       .Label(l => l.Text(SharedLocalizer["LinkedIn"]).Alignment(HorizontalAlignment.Left))
+                       .Editor(e => e.TextBox()
+                       );
+
+                                        groupItems.AddSimpleFor(m => m.MilitaryServiceBatch)
+                      .Label(l => l.Text(SharedLocalizer["MilitaryServiceBatch"]).Alignment(HorizontalAlignment.Left))
+                      .Editor(e => e.TextBox()
+                      );
+
+                                        groupItems.AddSimpleFor(m => m.MilitaryServiceStatus)
+                                  .Label(l => l.Text(SharedLocalizer["MilitaryServiceStatus"]).Alignment(HorizontalAlignment.Left))
+                                  .Editor(e => e
+                                  .SelectBox()
+                                       .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetMilitaryServiceStatus").LoadMode(DataSourceLoadMode.Raw))
+                                           .DisplayExpr(dropdownTextValeSec).ValueExpr("Id")
+                              );
+
+
+                                        groupItems.AddSimpleFor(m => m.MilitaryServiceFromDate)
+                                   .Label(l => l.Text(SharedLocalizer["MilitaryServiceFromDate"]).Alignment(HorizontalAlignment.Left))
+                                   .Editor(e => e
+                                       .DateBox().DisplayFormat("dd MMM yyyy")
+                                       .Max(DateTime.Now)
+                                  .Min(new DateTime(1900, 1, 1))
+                                       .Width("100%")
+                                       .PickerType(DateBoxPickerType.Calendar)
+                                   );
+
+
+
+                                        groupItems.AddSimpleFor(m => m.MilitaryServiceToDate)
+                                      .Label(l => l.Text(SharedLocalizer["MilitaryServiceToDate"]).Alignment(HorizontalAlignment.Left))
+                                      .Editor(e => e
+                                          .DateBox().DisplayFormat("dd MMM yyyy")
+                                          .Max(DateTime.Now)
+                                     .Min(new DateTime(1900, 1, 1))
+                                          .Width("100%")
+                                          .PickerType(DateBoxPickerType.Calendar)
+                                      );
+
+
+                                        groupItems.AddSimpleFor(m => m.Rid)
+                                        .Label(l => l.Text("-").Alignment(HorizontalAlignment.Left).Visible(false))
+                                        .Editor(e => e.NumberBox().Visible(false));
+
+                                        groupItems.AddSimpleFor(m => m.resumestatus)
+                                       .Label(l => l.Text("-").Alignment(HorizontalAlignment.Left).Visible(false))
+                                       .Editor(e => e.NumberBox().Visible(false));
+
+                                        groupItems.AddSimpleFor(m => m.JobSeekerId)
+                                      .Label(l => l.Text("-").Alignment(HorizontalAlignment.Left).Visible(false))
+                                      .Editor(e => e.TextBox().Visible(false));
+
+                                    });
+                            })
+            )
+
+            <div class="edit-actions">
+                @(Html.DevExtreme().Button()
+                        .Text(SharedLocalizer["Save"])
+                        .Width(90).UseSubmitBehavior(false)
+                        .OnClick("DevAV.employees.saveEmployee")
+                )
+                @(Html.DevExtreme().Button()
+                        .Text(SharedLocalizer["Cancel"])
+                        .Width(90)
+                        .OnClick("DevAV.employees.hideDetailsPopup")
+                )
+            </div>
+            }
+        </div>
+        </text>)
+    )
+                            <!--End Add or Edit resume-->
+                        </div>
+                    </div>
+                </nav>
+                <br /><br />
+            </aside>
+        </section>
+    </div>
+
+    <!-- Right Secondary column (hidden on smaller screens) -->
+    <aside class="relative hidden w-full bg-white border-l border-gray-200 overflow-y-auto lg:block h-screen ">
+
+        <div class="absolute flex-auto w-full z-0 overflow-y-auto focus:outline-none xl:order-last "
+             x-show="!isloading && selectedindex > 0"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 transform scale-90"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <!-- Breadcrumb -->
+            <nav class="flex items-start px-4 py-3 sm:px-6 lg:px-8 xl:hidden" aria-label="Breadcrumb">
+                <a href="#" class="inline-flex items-center space-x-3 text-sm font-medium text-gray-900">
+                    <!-- Heroicon name: solid/chevron-left -->
+                    <svg class="-ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Jobseekers</span>
+                </a>
+            </nav>
+            <!-- Profile header -->
+            <div>
+                <div>
+                    <img class="h-32 w-full object-cover lg:h-48" src="~/images/profileheader.jpg" alt="">
+                </div>
+                <div class="-mt-12 sm:-mt-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="sm:flex sm:items-start sm:space-x-5 mt-2">
+                        <div class="flex">
+                            <img id="jobSeekerPhoto" class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32" src="~/images/user.png" alt="">
+                        </div>
+                        <div class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6">
+                            <div class=" 2xl:block mt-10 min-w-0 flex-1">
+                                <h1 class="text-2xl font-bold text-gray-900 truncate">
+                                    @if (CultureHelper.IsRighToLeft())
+                                    {
+                                        <span id="jobseekernameAr"></span>
+                                    }
+                                    else
+                                    {
+                                        <span id="jobseekername"></span>
+                                    }
+                                </h1>
+                                <div class="flex-1 min-w-0">
+                                    <a href="#" onclick="DevAV.employees.pdfdownloadAndPreview('Preview?resumeid=')" target="_blank" class="focus:outline-none">
+                                        <!-- Extend touch target to entire panel -->
+
+                                        <p class="text-sm text-gray-500 truncate">
+
+                                            @if (CultureHelper.IsRighToLeft())
+                                            {
+                                                <span id="jobseekerstatusAr"></span>
+                                            }
+                                            else
+                                            {
+                                                <span id="jobseekerstatus"></span>
+                                            }
+                                            / <span id="jobseekercode"></span>
+                                        </p>
+                                        @*<p class="text-sm font-medium text-gray-900">
+                                        <span>@SharedLocalizer["YearsofExperience"]</span> <span id="jobseekerTotalExp"></span>,
+                                        <span>@SharedLocalizer["Age"]</span> <span id="jobseekerAge"></span>
+                                    </p>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        <span>@SharedLocalizer["HighestEducation"]</span>  <span id="jobseekerHighestEducation"></span>
+
+                                    </p>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        <span>@SharedLocalizer["CurrentRole"]</span> <span id="jobseekerCurrentRole"></span>
+                                    </p>*@
+                                    </a>
+                                </div>
+                            </div>
+
+
+
+                            <div class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
+                                <!--<button type="button" onclick="DevAV.employees.editEmployeePopup()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+                                <!-- Heroicon name: solid/mail -->
+                                <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            <span>@SharedLocalizer["Edit"]</span>
+                        </button>-->
+                                <button type="button" onclick="DevAV.employees.pdfdownloadAndPreview('@Model.PdfDownloadURL')" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                                    <!-- Heroicon name: solid/mail -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-6 text-gray-400" viewBox="0 0 10 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span>@SharedLocalizer["Pdf"]</span>
+                                </button>
+
+                                <button type="button" onclick="DevAV.employees.pdfdownloadAndPreview('PreviewJobSeekerDetail?resumeid=')" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                                    <!-- Heroicon name: solid/mail -->
+                                    <svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                    <span>@SharedLocalizer["Preview"]</span>
+                                </button>
+                                <!--<button type="button" onclick="DevAV.employees.ShowCoverLetterPopup()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+                                <!-- Heroicon name: solid/mail -->
+                                <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span>@SharedLocalizer["CoverLetter"]</span>
+                        </button>-->
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Vacancy and training-->
+            <!--<div class="mt-6 sm:mt-2 2xl:mt-5">
+        <div>
+            <div class="max-w-5xl mx-auto px-2 sm:px-2 lg:px-2">
+                <button type="button" onclick="DevAV.employees.ShowApplyVacancyPopupButtonClick()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+            <!-- Heroicon name: solid/mail -->
+            <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+        </svg>
+        <span>@SharedLocalizer["Vacancy"]</span>
+        <span></span>
+    </button>
+    <button type="button" onclick="DevAV.employees.ShowApplyVacancyPopupPreviousHistoryButtonClick()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+            <!-- Heroicon name: solid/mail -->
+            <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+        </svg>
+        <span>@SharedLocalizer["VacancyPreviousHistory"]</span>
+        <span></span>
+    </button>
+    <button type="button" onclick="DevAV.employees.ShowApplyTrainingPopupButtonClick()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+            <!-- Heroicon name: solid/mail -->
+            <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+        </svg>
+        <span>@SharedLocalizer["Training"]</span>
+        <span></span>
+    </button>
+    <button type="button" onclick="DevAV.employees.ShowApplyTrainingPopupPreviousHistoryButtonClick()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+            <!-- Heroicon name: solid/mail -->
+            <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+        </svg>
+        <span>@SharedLocalizer["TrainingPreviousHistory"]</span>
+        <span></span>
+    </button>
+    <button type="button" onclick="DevAV.employees.ShowIntegrationPopupButtonClick()" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+            <!-- Heroicon name: solid/mail -->
+            <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd" />
+        </svg>
+        <span>@SharedLocalizer["Integration"]</span>
+    </button>-->
+            <!--<button type="button" onclick="DevAV.employees.pdfdownloadAndPreview('previewjobseeker?resumeid=')" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">-->
+            <!-- Heroicon name: solid/mail -->
+            <!--<svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        <span>@SharedLocalizer["PreviewJobSeeker"]</span>
+    </button>-->
+            <!--</div>
+        </div>
+    </div>-->
+            <!--Personal info-->
+            <div class="mt-6 sm:mt-2 2xl:mt-5">
+                <div>
+                    <div class="max-w-5xl mx-auto px-2 sm:px-2 lg:px-2">
+                        <nav class="-mb-px flex  space-x-8 " aria-label="Tabs">
+                            <!-- Current: "border-primary text-gray-900", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
+                            <a x-on:click.prevent="setCurrentTab(1)" href="#"
+                               x-bind:class="currentTab==1?'border-primary text-gray-900 ':'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                               class="whitespace-nowrap py-4 px-1 border-b-2 text-lg font-semibold" aria-current="page">
+                                @SharedLocalizer["PersonalInfo"]
+                                <span x-text="currentTab"></span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 max-w-5xl mx-auto px-2 sm:px-2 lg:px-2" x-show="currentTab==1">
+                <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+
+                    <dl class="sm:col-span-1">
+                        @if (CultureHelper.IsRighToLeft())
+                        {
+                            <dt class="text-sm font-medium text-gray-500">
+                                @SharedLocalizer["FullNameAr"]
+                            </dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <span id="detailjobseekerFullNameAr"></span>
+                            </dd>
+                        }
+                        else
+                        {
+                            <dt class="text-sm font-medium text-gray-500">
+                                @SharedLocalizer["FullName"]
+                            </dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <span id="detailjobseekerFullName"></span>
+                            </dd>
+                        }
+
+
+                    </dl>
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["EmiratesID"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailEmiratesID"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["PassportNumber"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailPassportNumber"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["Dob"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailDob"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["Emirates"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailEmirates"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["City"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailCity"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["Location"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailLocation"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["MartialStatus"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailMartialStatus"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["MobileNumber"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailMobileNumber"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["Gender"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailGender"></span>
+                        </dd>
+                    </dl>
+
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["Email"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailEmail"></span>
+                        </dd>
+                    </dl>
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["CreatedDate"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailCreatedDate"></span>
+                        </dd>
+                    </dl>
+                    <dl class="sm:col-span-1">
+                        <dt class="text-sm font-medium text-gray-500">
+                            @SharedLocalizer["ModifiedDate"]
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span id="detailModifiedDate"></span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="mt-6 sm:mt-2 2xl:mt-5">
+                <div class="border-b border-gray-200">
+                    <div class="max-w-5xl mx-auto px-2 sm:px-2 lg:px-2">
+                        <div id="employeeInfo">
+                            <input type="hidden" id="selected_resume_Id" />
+                            <input type="hidden" id="selected_attachment_Id" />
+                            @(Html.DevExtreme().TabPanel().Loop(true).ScrollingEnabled(true).ScrollByContent(true)
+         .ID("detailtabPanel").RtlEnabled(CultureHelper.IsRighToLeft())
+        .Items(items => {
+
+            //items.Add()
+            //        .Title(SharedLocalizer["Education"])
+            //        .Template(new TemplateName("gridContainer-details-tab2Template"));
+            //items.Add()
+            //       .Title(SharedLocalizer["Employer"])
+            //       .Template(new TemplateName("gridContainer-details-tab3Template"));
+            //items.Add()
+            //     .Title(SharedLocalizer["Reference"])
+            //     .Template(new TemplateName("gridContainer-details-tab4Template"));
+            //items.Add()
+            //      .Title(SharedLocalizer["Certifications"])
+            //      .Template(new TemplateName("gridContainer-details-tab5Template"));
+            //items.Add()
+            //     .Title(SharedLocalizer["Source"])
+            //     .Template(new TemplateName("gridContainer-details-tab6Template"));
+            items.Add()
+                .Title(SharedLocalizer["Notes"])
+                .Template(new TemplateName("gridContainer-details-tab7Template"));
+            //items.Add()
+            //      .Title(SharedLocalizer["Status"])
+            //      .Template(new TemplateName("gridContainer-details-tab8Template"));
+            items.Add()
+                 .Title(SharedLocalizer["Attachment"])
+                 .Template(new TemplateName("gridContainer-details-tab9Template"));
+            items.Add()
+                .Title(SharedLocalizer["Assessments"])
+                .Template(new TemplateName("gridContainer-details-tab10Template"));
+            //items.Add()
+            //    .Title(SharedLocalizer["Skills"])
+            //    .Template(new TemplateName("gridContainer-details-tab11Template"));
+            //items.Add()
+            //    .Title(SharedLocalizer["General"])
+            //    .Template(new TemplateName("gridContainer-details-tab12Template"));
+            //items.Add()
+            //   .Title(SharedLocalizer["LanguageJobSeeker"])
+            //   .Template(new TemplateName("gridContainer-details-tab13Template"));
+            //items.Add()
+            //   .Title("POD")
+            //   .Template(new TemplateName("gridContainer-details-tab14Template"));
+        }).OnItemClick("DevAV.employees.tabItemRendered").OnItemRendered("DevAV.employees.tabItemRendered").OnItemClick("DevAV.employees.tabItemRendered")
+        .SelectedIndex(0)
+                    .Loop(false)
+                    .AnimationEnabled(false)
+                    .SwipeEnabled(true)
+                    .ItemTitleTemplate(@<text><span>[%= title %]</span></text>)
+
+                   )
+
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab2Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Education>()
+    .ID("education-grid").RtlEnabled(CultureHelper.IsRighToLeft()).AllowColumnResizing(true)
+    .ShowBorders(true).OnEditorPreparing("onEditorPreparing_Education")
+    .Paging(paging => paging.Enabled(false))
+    .Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Popup);
+        editing.AllowAdding(false);
+        editing.AllowDeleting(false);
+        editing.AllowUpdating(false);
+        editing.Form(z => z.ShowRequiredMark(true).ShowColonAfterLabel(true).ShowValidationSummary(true));
+        editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+        .CancelRowChanges(SharedLocalizer["Cancel"])
+        .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+        .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+    }).OnInitNewRow("onInitNewRow")
+    .Columns(columns => {
+
+    columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem=> { formItem.Visible(false); }).Visible(false);
+    columns.AddFor(m => m.Category_ID).Visible(false).Caption(SharedLocalizer["EducationCategory"])
+        .Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetEducationCategory").LoadMode(DataSourceLoadMode.Raw))
+        .DisplayExpr(dropdownTextValeSec).ValueExpr("Id"));
+    columns.AddFor(m => m.Education_Group_Id).SetCellValue(@<text>setEducationValue</text>).Caption(SharedLocalizer["EducationGroupId"]).Width(125)
+        .Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetEducationGroup").LoadMode(DataSourceLoadMode.Raw))
+        .DisplayExpr(dropdownTextValeSec).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Education_Type_Id).SetCellValue(@<text>setEducationMajorValue</text>).Caption(SharedLocalizer["EducationTypeId"])
+                    .Lookup(lookup => lookup.DataSource("getEducationType")
+                    .DisplayExpr(dropdownTextValeSec).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Education_Major_Id).Caption(SharedLocalizer["EducationMajorId"])
+                   .Lookup(lookup => lookup.DataSource("getEducationMajor")
+                   .DisplayExpr(dropdownTextValeSec).ValueExpr("Id"));
+
+        columns.AddFor(m => m.University_Type_Id).Visible(false).Caption(SharedLocalizer["UniversityTypeId"]).Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetUniversityType").LoadMode(DataSourceLoadMode.Raw))
+        .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        columns.AddFor(m => m.University_Id).Visible(false).Caption(SharedLocalizer["UniversityId"]).AllowSorting(false).Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetUniversity").Key("Id"))
+        .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxUniversityTemplate")).Width(150);
+
+        columns.AddFor(m => m.Course_Id).Visible(false).Caption(SharedLocalizer["CourseId"]).AllowSorting(false).Lookup(lookup => lookup
+       .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCourse").Key("Id"))
+       .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxCourseTemplate")).Width(150);
+
+        columns.AddFor(m => m.Emirate_Id).Caption(SharedLocalizer["Emirates"])
+        .Width(125).Visible(false)
+        .Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetEmirates").LoadMode(DataSourceLoadMode.Raw))
+        .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        //columns.AddFor(m => m.Location_ID).Caption(SharedLocalizer["Location"])
+        //.Visible(false)
+        //.Lookup(lookup => lookup
+        // .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+        //.DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Location_ID).Visible(false).Caption(SharedLocalizer["EmployerLocation"]).AllowSorting(false).Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+        .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxCountryCityTemplate")).Width(150);
+
+        columns.AddFor(m => m.Grade_Category_ID).Caption(SharedLocalizer["GradeCategory"])
+       .Visible(false)
+        .Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetGradeCategory").LoadMode(DataSourceLoadMode.Raw))
+        .DisplayExpr(dropdownTextValeSec).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Grade).Visible(false).Caption(SharedLocalizer["Grade"]);
+
+        columns.AddFor(m => m.FromYear).FormItem(f => f.Editor(e => e.DateBox().Max(DateTime.Now)
+                                  .Min(new DateTime(1900, 1, 1)))).Format("dd-MM-yyyy").Caption(SharedLocalizer["FromYear"]);
+
+        columns.AddFor(m => m.ToYear).FormItem(f => f.Editor(e => e.DateBox().Max(DateTime.Now)
+                                  .Min(new DateTime(1900, 1, 1)))).Format("dd-MM-yyyy").Caption(SharedLocalizer["ToYear"]);
+
+
+        columns.AddFor(m => m.Institute).Visible(false).Caption(SharedLocalizer["Institute"]);
+        columns.AddFor(m => m.IsThisHigestQualication).Visible(true).Caption(SharedLocalizer["IsThisHigestQualication"]);
+    })
+    .DataSource(d => d.Mvc()
+    .Controller("Education")
+    .LoadAction("GetAllEducationResume").LoadParams(new { resumeid = new JS("getResumeId") })
+    .UpdateAction("Put")
+    .InsertAction("Post")
+    .DeleteAction("Delete")
+    .Key("Rid"))
+    )
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab3Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Employer>()
+             .ID("employer-grid").RtlEnabled(CultureHelper.IsRighToLeft()).AllowColumnResizing(true)
+               .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(false);
+                editing.AllowDeleting(false);
+                editing.AllowUpdating(false);
+                editing.Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+            }).OnInitNewRow("onInitNewRow")
+    .Columns(columns => {
+
+        columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+
+        columns.AddFor(m => m.Particular_ID).Caption(SharedLocalizer["ParticularID"]).Lookup(lookup => lookup
+                .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetParticular").LoadMode(DataSourceLoadMode.Raw))
+                .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Employer_ID).Caption(SharedLocalizer["EmployerID"]).AllowSorting(false).Lookup(lookup => lookup
+          .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetEmployer").Key("Id"))
+          .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxEmployerTemplate")).Width(150);
+
+        columns.AddFor(m => m.EmployerAddress).Visible(false).Caption(SharedLocalizer["EmployerAddress"]);
+
+        columns.AddFor(m => m.Phone).Caption(SharedLocalizer["Phone"]);
+
+        columns.AddFor(m => m.Employer_Location_ID).Visible(false).Caption(SharedLocalizer["EmployerLocation"]).AllowSorting(false).Lookup(lookup => lookup
+          .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+          .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxCountryCityTemplate")).Width(150);
+
+
+        columns.AddFor(m => m.Employer_Code_No).Visible(false).Caption(SharedLocalizer["EmployerCodeNo"]);
+
+        columns.AddFor(m => m.Desigination_ID).Caption(SharedLocalizer["DesignationID"]).AllowSorting(false).Lookup(lookup => lookup
+            .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetDesignation").Key("Id"))
+            .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxTemplate")).Width(150);
+
+
+        columns.AddFor(m => m.FromDate).FormItem(f => f.Editor(e => e.DateBox().Max(DateTime.Now)
+                                       .Min(new DateTime(1900, 1, 1)))).Format("dd-MM-yyyy").Caption(SharedLocalizer["FromDate"]);
+
+        columns.AddFor(m => m.ToDate).FormItem(f => f.Editor(e => e.DateBox().Max(DateTime.Now)
+                                  .Min(new DateTime(1900, 1, 1)))).Format("dd-MM-yyyy").Caption(SharedLocalizer["ToDate"]);
+
+
+        columns.AddFor(m => m.RolesAndResposibilites).Visible(false).Caption(SharedLocalizer["RolesAndResposibilites"]).FormItem(f => f.Editor(e => e.TextArea().MaxLength(1998)));
+        columns.AddFor(m => m.Achievements).Visible(false).Caption(SharedLocalizer["Achievements"]).FormItem(f => f.Editor(e => e.TextArea().MaxLength(798)));
+        columns.AddFor(m => m.Department).Visible(false).Caption(SharedLocalizer["Department"]);
+
+        columns.AddFor(m => m.Employment_Type_ID).Caption(SharedLocalizer["EmploymentType"])
+       .Visible(false)
+       .Lookup(lookup => lookup
+       .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetEmploymentType").LoadMode(DataSourceLoadMode.Raw))
+       .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Job_Industry_Type_ID).Caption(SharedLocalizer["JobIndustry"])
+       .Visible(false)
+       .Lookup(lookup => lookup
+       .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetJobIndustry").LoadMode(DataSourceLoadMode.Raw))
+       .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Job_Role_ID).Caption(SharedLocalizer["JobCategory"])
+       .Visible(false)
+       .Lookup(lookup => lookup
+       .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetJobCategory").LoadMode(DataSourceLoadMode.Raw))
+       .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+        columns.AddFor(m => m.Job_Location_ID).Visible(false).Caption(SharedLocalizer["JobLocation"]).AllowSorting(false).Lookup(lookup => lookup
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+        .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxCountryCityTemplate")).Width(150);
+
+        columns.AddFor(m => m.IsThisMyCurrentRole).Caption(SharedLocalizer["IsThisMyCurrentRole"]);
+
+    }).DataSource(d => d.Mvc()
+       .Controller("Employer")
+       .LoadAction("GetAllEmployerResume").LoadParams(new { resumeid = new JS("getResumeId") })
+       .UpdateAction("Put")
+       .InsertAction("Post")
+       .DeleteAction("Delete")
+       .Key("Rid"))
+)
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab4Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Reference>()
+            .ID("reference-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+            .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(false);
+                editing.AllowDeleting(false);
+                editing.AllowUpdating(false);
+                editing.Form(z => z.ShowRequiredMark(true).ShowColonAfterLabel(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+            }).OnInitNewRow("onInitNewRow")
+
+    .Columns(columns => {
+
+
+        columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+        columns.AddFor(m => m.Reference_Name);
+
+        columns.AddFor(m => m.Company_Name).Caption(SharedLocalizer["CompanyName"]);
+
+        columns.AddFor(m => m.Address1).Caption(SharedLocalizer["Address1"]);
+
+        columns.AddFor(m => m.Address2).Caption(SharedLocalizer["Address2"]);
+
+        columns.AddFor(m => m.ContactNumber).Caption(SharedLocalizer["ContactNumber"]);
+
+        columns.AddFor(m => m.Department).Caption(SharedLocalizer["Department"]);
+
+        columns.AddFor(m => m.Occupation).Caption(SharedLocalizer["Occupation"]);
+
+        columns.AddFor(m => m.EmailId).Caption(SharedLocalizer["Email"]);
+
+        columns.AddFor(m => m.Username).Caption(SharedLocalizer["Username"]);
+
+        columns.AddFor(m => m.ReferenceCreatedDate).Caption(SharedLocalizer["ReferenceCreatedDate"]);
+    }).DataSource(d => d.Mvc()
+       .Controller("Reference")
+       .LoadAction("GetAllReferenceResume").LoadParams(new { resumeid = new JS("getResumeId") })
+       .UpdateAction("Put")
+       .InsertAction("Post")
+       .DeleteAction("Delete")
+       .Key("Rid"))
+
+)
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab5Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Certification>()
+            .ID("certification-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(false);
+                editing.AllowDeleting(false);
+                editing.AllowUpdating(false);
+                editing.Form(z=>z.ShowRequiredMark(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+            }).OnInitNewRow("onInitNewRow")
+            .Columns(columns => {
+                columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+                columns.AddFor(m => m.CertificationName).Caption(SharedLocalizer["CertificateName"]);
+
+                columns.AddFor(m => m.CertificateType).Caption(SharedLocalizer["CertificateType"])
+                .Width(125)
+                .Lookup(lookup => lookup
+                .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetCertificateType").LoadMode(DataSourceLoadMode.Raw))
+                .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+                columns.AddFor(m => m.CountryId).Caption(SharedLocalizer["Country"])
+               .Width(125)
+               .Lookup(lookup => lookup
+               .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetCountry").LoadMode(DataSourceLoadMode.Raw))
+               .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+                columns.AddFor(m => m.CityId).Caption(SharedLocalizer["City"]).AllowSorting(false).Lookup(lookup => lookup
+       .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+       .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxCountryCityTemplate")).Width(150);
+
+                columns.AddFor(m => m.Score).FormItem(z=>z.Editor(e=>e.NumberBox().Min(0.0).Max(999.99))).Caption(SharedLocalizer["Score"]);
+
+                columns.AddFor(m => m.FromDate).FormItem(f=>f.Editor(e=>e.DateBox().Max(DateTime.Now)
+                                        .Min(new DateTime(1900, 1, 1)))).Format("dd-MM-yyyy").Caption(SharedLocalizer["FromDate"]);
+
+                columns.AddFor(m => m.ToDate).FormItem(f => f.Editor(e => e.DateBox().Max(DateTime.Now)
+                                          .Min(new DateTime(1900, 1, 1)))).Format("dd-MM-yyyy").Caption(SharedLocalizer["ToDate"]);
+
+                columns.AddFor(m => m.InstituteId).Caption(SharedLocalizer["Institute"]).AllowSorting(false).Lookup(lookup => lookup
+          .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetInstitute").Key("Id"))
+          .ValueExpr("Id").DisplayExpr(dropdownTextVale)).EditCellTemplate(new TemplateName("DropDownBoxInstituteTemplate")).Width(150);
+
+            })
+    .DataSource(d => d.Mvc()
+       .Controller("Certification")
+       .LoadAction("GetAllCertificationResume").LoadParams(new { resumeid = new JS("getResumeId") })
+        .UpdateAction("Put")
+       .InsertAction("Post")
+       .DeleteAction("Delete")
+       .Key("Rid")))
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab6Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Source>()
+            .ID("source-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(false);
+                editing.AllowDeleting(false);
+                editing.AllowUpdating(false);
+                editing.Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+            }).OnInitNewRow("onInitNewRow")
+            .Columns(columns => {
+
+                columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+
+                columns.AddFor(m => m.SourceName).Caption(SharedLocalizer["SourceName"]);
+
+                columns.AddFor(m => m.Relationship).Caption(SharedLocalizer["Relationship"]);
+
+                columns.AddFor(m => m.SourceType_ID).Caption(SharedLocalizer["SourceTypeID"]).Lookup(lookup => lookup
+               .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetSourceType").LoadMode(DataSourceLoadMode.Raw))
+               .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+                columns.AddFor(m => m.SourceLetterDate).Caption(SharedLocalizer["SourceLetterDate"]);
+                columns.AddFor(m => m.Reference_Type).Caption(SharedLocalizer["ReferenceType"]);
+                columns.AddFor(m => m.IsPriority).Caption(SharedLocalizer["IsPriority"]);
+            }).AllowColumnResizing(true).AllowColumnReordering(true)
+    .DataSource(d => d.Mvc()
+       .Controller("Source")
+       .LoadAction("GetAllSourceResume").LoadParams(new { resumeid = new JS("getResumeId") })
+       .UpdateAction("Put")
+       .InsertAction("Post")
+       .DeleteAction("Delete")
+       .Key("Rid"))
+)
+
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab7Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Notes>()
+            .ID("notes-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(true);
+                editing.AllowDeleting(true);
+                editing.Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+                // editing.AllowUpdating(true);
+            }).OnInitNewRow("onInitNewRow")
+            .Columns(columns => {
+                columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+                columns.AddFor(m => m.Title).Caption(SharedLocalizer["Title"]);
+                columns.AddFor(m => m.Note).Caption(SharedLocalizer["Note"]);
+                columns.AddFor(m => m.NoteType).Caption(SharedLocalizer["NoteType"]).Lookup(lookup => lookup
+             .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetNoteType").LoadMode(DataSourceLoadMode.Raw))
+             .DisplayExpr(dropdownTextValeSec).ValueExpr("Id"));
+                columns.AddFor(m => m.UserName).Caption(SharedLocalizer["UserName"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+                columns.AddFor(m => m.Lastupdate).SortOrder(SortOrder.Desc).Format("dd-MM-yyyy HH:mm:ss").Width(150).Caption(SharedLocalizer["Date"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+                //columns.AddFor(m=>m.)
+            })
+            .AllowColumnResizing(true).AllowColumnReordering(true)
+    .DataSource(d => d.Mvc()
+       .Controller("Notes")
+       .LoadAction("GetAllNotesResume").LoadParams(new { resumeid = new JS("getResumeId") })
+       // .UpdateAction("Put")
+       .InsertAction("Post")
+       .DeleteAction("Delete")
+       .Key("Rid")))
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab8Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.JobsSeekerStatus>()
+            .ID("status-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(false);
+                //editing.AllowDeleting(true);
+                // editing.AllowUpdating(true);
+                editing.Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+            }).OnSaved("DevAV.employees.reloadResumeGrid")
+            .OnInitNewRow("onInitNewRow")
+            .OnEditorPreparing("onEditorPreparing")
+            .Columns(columns => {
+                columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+                columns.AddFor(m => m.StatusUpdateDateTime).SortOrder(SortOrder.Desc).Format("dd-MM-yyyy HH:mm:ss").Width(150).Caption(SharedLocalizer["StatusUpdateDateTime"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+                columns.AddFor(m => m.UserId).Caption(SharedLocalizer["StatusUpdateBy"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+
+                columns.AddFor(m => m.Status_ID).Caption(SharedLocalizer["Status"]).SetCellValue("setStateValue").Lookup(lookup => lookup
+               .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetResumeStatus").LoadMode(DataSourceLoadMode.Raw))
+               .DisplayExpr("Title").ValueExpr("Rid"));
+
+                columns.AddFor(m => m.Reason_ID).Caption(SharedLocalizer["Reason"]).Lookup(lookup => lookup
+                .DataSource("getReasons").DisplayExpr("Title").ValueExpr("Rid"));
+
+            })
+                .DataSource(d => d.Mvc()
+                   .Controller("Resume")
+                   .LoadAction("GetAllResumeStatus").LoadParams(new { resumeid = new JS("getResumeId") })
+                   //  .UpdateAction("UpdateResumeStatus")
+                   .InsertAction("InsertResumeStatus")
+                   //.DeleteAction("Delete")
+                   .Key("Rid")))
+
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab9Template"))
+                            {
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.JobSeekerAttachment>()
+            .ID("attachment-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+            .Editing(editing =>
+            {
+                editing.Mode(GridEditMode.Popup);
+                editing.AllowAdding(true);
+                editing.AllowDeleting(true);
+                // editing.AllowUpdating(true);
+                editing.Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true));
+                editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+      .CancelRowChanges(SharedLocalizer["Cancel"])
+      .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+      .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+            })
+             .RemoteOperations(true)
+            .OnInitNewRow("onInitNewRowAttachment")
+            //.OnEditorPreparing("onEditorPreparing")
+            .Columns(columns => {
+            columns.AddFor(m => m.Resume_ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+            columns.AddFor(m => m.FileDateTime).Width(100).Caption(SharedLocalizer["Date"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+            columns.AddFor(m => m.FileName).Caption(SharedLocalizer["FileName"]).EditCellTemplate(@<text>
+    @(Html.DevExtreme().FileUploader()
+        .ElementAttr(new JS("{'data-id': data.Rid }"))
+        .ID("fileUploader").ReadyToUploadMessage(SharedLocalizer["FileisReadytoUpload"]).UploadFailedMessage(SharedLocalizer["UploadFail"]).SelectButtonText(SharedLocalizer["SelectFile"]).UploadButtonText(SharedLocalizer["Upload"]).UploadedMessage(SharedLocalizer["UploadSuccess"])
+        .Name("myFile")
+        .Multiple(false)
+        .Accept("image/jpeg,image/gif,image/png,application/pdf,application/doc,application/docx,image/x-eps")
+        .UploadMode(FileUploadMode.Instantly).UploadFile("uploadFile")
+        .OnValueChanged("function(e) { fileUploader_valueChanged(e, setValue); }")
+    //  .UploadUrl(Url.Action("UploadFile", "Home"))
+    //   .OnValueChanged("fileUploader_valueChanged")
+    )</text>);
+
+                columns.AddFor(m => m.DocumentType_ID).Caption(SharedLocalizer["DocumentTypeID"]).Lookup(lookup => lookup
+               .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetDocumentType").LoadMode(DataSourceLoadMode.Raw))
+               .DisplayExpr("FullTitle").ValueExpr("Rid"));
+                columns.AddFor(m => m.Description).Caption(SharedLocalizer["Description"]);
+                columns.AddFor(m=>m.MongoDBUniqueId).FormItem(formItem => { formItem.Visible(false); }).AllowEditing(false).Caption(@SharedLocalizer["DownloadFile"]).CellTemplate(@<text><a  target="_blank" href="api/Resume/GetFile?mongoDBID=<%= data.MongoDBUniqueId %>">@SharedLocalizer["Download"]</a></text>);
+
+            })
+    .DataSource(d => d.Mvc()
+       .Controller("Attachment")
+       .LoadAction("GetAllAttachmentResume").LoadParams(new { resumeid = new JS("getResumeId") })
+       //  .UpdateAction("UpdateResumeStatus")
+       .InsertAction("Post")
+       .DeleteAction("Delete")
+       .Key("Rid")))
+
+                                <b>@SharedLocalizer["JobApplicationAttachments"]</b>
+                                <!--This is attachment from the for job application api-->
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Job_ApplicationAttachment>()
+            .ID("jobapplcation-attachment-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+            .Paging(paging => paging.Enabled(false))
+             .RemoteOperations(true)
+           // .OnInitNewRow("onInitNewRowAttachment")
+            //.OnEditorPreparing("onEditorPreparing")
+            .Columns(columns => {
+            columns.AddFor(m => m.JobSeekerId).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+
+            columns.AddFor(m => m.FileName).Caption(SharedLocalizer["FileName"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+
+                columns.AddFor(m => m.DocumentType).Caption(SharedLocalizer["DocumentTypeID"]).Lookup(lookup => lookup
+               .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetDocumentType").LoadMode(DataSourceLoadMode.Raw))
+               .DisplayExpr("FullTitle").ValueExpr("Rid"));
+                columns.AddFor(m=>m.FileId).FormItem(formItem => { formItem.Visible(false); }).AllowEditing(false).Caption(@SharedLocalizer["DownloadFile"]).CellTemplate(@<text><a  target="_blank" href="api/Resume/GetFileJobApplication?mongoDBID=<%= data.FileId %>&collectionName=<%= data.CollectionName %>">@SharedLocalizer["Download"]</a></text>);
+
+            })
+    .DataSource(d => d.Mvc()
+       .Controller("Vacancy")
+       .LoadAction("GetJobApplicationAttachments").LoadParams(new { jobSeekerId = new JS("getResumeId") })
+       .Key("FileId")))
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab10Template"))
+                            {
+
+                                <input type="hidden" id="current-templateId" />
+
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.AssessmentTemplate>()
+            .ID("assessment-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+              .ShowRowLines(true)
+
+              .RowAlternationEnabled(true)
+            .Paging(paging => paging.Enabled(false))
+            .Columns(columns => {
+            columns.AddFor(m => m.ID).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+            columns.AddFor(m => m.Title).Width(250).Caption(SharedLocalizer["AssessmentName"]).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); });
+            columns.Add().Width(150).Caption(SharedLocalizer["AssessmentResult"]).Type(GridCommandColumnType.Buttons)
+                .Buttons(b =>
+                {
+                    b.Add().Text(SharedLocalizer["Assessments"]).Icon("card").OnClick("DevAV.employees.ShowAssessmentPopup");
+                });
+            if(CultureHelper.IsRighToLeft())
+            {
+                     columns.Add().Width(150).FormItem(formItem => { formItem.Visible(false); }).AllowEditing(false).Caption(SharedLocalizer["AssessmentTake"])
+                .CellTemplate(
+                        @<text>
+
+                                 <button type="button" class="button is-light is-link is-small"  onclick="getUrlForTakeAssessment('<%= data.ID %>')" >@SharedLocalizer["AssessmentTake"]</button>
+
+                        </text>);
+            }
+
+            })
+            .DataSource(d => d.Mvc().Controller("Assessment").LoadAction("GetAllTemplate").Key("ID")))
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab11Template"))
+                            {
+
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Occupation>()
+        .ID("occupation-grid")
+        .DataSource(ds => ds.Mvc()
+            .Controller("Occupation")
+            .LoadAction("GetAllOccupationResume").LoadParams(new { resumeid = new JS("getResumeId") })
+            .InsertAction("Post")
+            .UpdateAction("Put")
+            .DeleteAction("Delete")
+            .Key("Rid")
+        )
+        .RtlEnabled(false)
+        .RemoteOperations(true)
+        .Columns(columns => {
+        columns.AddFor(m => m.Proficiency).Caption(SharedLocalizer["Proficiency"])
+       .Lookup(lookup => lookup
+           .DataSource(ds => ds.WebApi().Controller("lookup")
+           .LoadAction("GetProficiencyType").LoadMode(DataSourceLoadMode.Raw).Key("Id"))
+           .ValueExpr("Id").DisplayExpr(dropdownTextValeSec)
+       );
+        columns.AddFor(m => m.SkillGroupId).Caption(SharedLocalizer["SkillGroup"])
+            .Lookup(lookup => lookup
+                .DataSource(ds => ds.WebApi().Controller("lookup")
+                .LoadAction("GetSkillGroup").LoadMode(DataSourceLoadMode.Raw).Key("Id"))
+                .ValueExpr("Id").DisplayExpr(dropdownTextVale)
+            )
+            .SetCellValue(@<text>setSkillGroupId</text>);
+
+                columns.AddFor(m => m.OccupationId).Caption(SharedLocalizer["Occupation"])
+                    .Lookup(lookup => lookup.DataSource("getSkillGroupOccupations")
+                    .DisplayExpr(dropdownTextVale).ValueExpr("Id"));
+
+
+
+            })
+            .Editing(e => e
+                .AllowAdding(false)
+                .AllowUpdating(false)
+                .AllowDeleting(false)
+                .Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true))
+                .Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+        .CancelRowChanges(SharedLocalizer["Cancel"])
+        .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+        .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]))
+            )
+            // .OnInitNewRow(@<text>InitVacancyChildNewRow</text>)
+            .OnInitNewRow("onInitNewRow")
+            //   .OnEditorPreparing("onEditorPreparing")
+            .OnEditorPreparing("onEditorPreparing_VacancyOccupations")
+        )
+
+
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab12Template"))
+                            {
+
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.ToolsKnowledge>()
+        .ID("toolsAndKnowledge-grid")
+        .DataSource(ds => ds.Mvc()
+            .Controller("ToolsKnowledge")
+            .LoadAction("GetAllToolsKnowledgeResume").LoadParams(new { resumeid = new JS("getResumeId") })
+            .InsertAction("Post")
+            .UpdateAction("Put")
+            .DeleteAction("Delete")
+            .Key("Rid")
+        )
+        .RtlEnabled(false)
+        .RemoteOperations(true)
+        .Columns(columns => {
+            columns.AddFor(m => m.Proficiency).Caption(SharedLocalizer["Proficiency"])
+           .Lookup(lookup => lookup
+               .DataSource(ds => ds.WebApi().Controller("lookup")
+               .LoadAction("GetProficiencyType").LoadMode(DataSourceLoadMode.Raw).Key("Id"))
+               .ValueExpr("Id").DisplayExpr(dropdownTextValeSec)
+           );
+
+
+            columns.AddFor(m => m.ToolsKnowledgeId).Caption(SharedLocalizer["ToolsKnowledge"])
+       .Lookup(lookup => lookup
+           .DataSource(ds => ds.WebApi().Controller("lookup")
+           .LoadAction("GetToolsKnowledge").LoadMode(DataSourceLoadMode.Raw).Key("Id"))
+           .ValueExpr("Id").DisplayExpr(dropdownTextVale)
+       );
+
+
+
+        })
+            .Editing(e => e
+                .AllowAdding(false)
+                .AllowUpdating(false)
+                .AllowDeleting(false)
+                .Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true))
+                .Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+        .CancelRowChanges(SharedLocalizer["Cancel"])
+        .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+        .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]))
+            )
+            // .OnInitNewRow(@<text>InitVacancyChildNewRow</text>)
+            .OnInitNewRow("onInitNewRow")
+            //   .OnEditorPreparing("onEditorPreparing")
+           // .OnEditorPreparing("onEditorPreparing_VacancyOccupations")
+        )
+
+
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab13Template"))
+                            {
+
+                                @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.JobSeekerLanguages>()
+        .ID("language-grid")
+        .DataSource(ds => ds.Mvc()
+            .Controller("Languages")
+            .LoadAction("GetAllJobSeekerLanguageResume").LoadParams(new { resumeid = new JS("getResumeId") })
+            .InsertAction("Post")
+            .UpdateAction("Put")
+            .DeleteAction("Delete")
+            .Key("Rid")
+        )
+        .RtlEnabled(false)
+        .RemoteOperations(true)
+        .Columns(columns => {
+            columns.AddFor(m => m.Language_ID).Caption(SharedLocalizer["LanguageJobSeeker"])
+           .Lookup(lookup => lookup
+               .DataSource(ds => ds.WebApi().Controller("lookup")
+               .LoadAction("GetLanguage").LoadMode(DataSourceLoadMode.Processed).Key("Id"))
+               .ValueExpr("Id").DisplayExpr(dropdownTextVale)
+           );
+            columns.AddFor(m => m.LanguageRead).Caption(SharedLocalizer["LanguageRead"]);
+            columns.AddFor(m => m.LanguageWrite).Caption(SharedLocalizer["LanguageWrite"]);
+            columns.AddFor(m => m.LanguageSpeak).Caption(SharedLocalizer["LanguageSpeak"]);
+            columns.AddFor(m => m.Languagecomprehand).Caption(SharedLocalizer["Languagecomprehand"]);
+
+        })
+            .Editing(e => e
+                .AllowAdding(false)
+                .AllowUpdating(false)
+                .AllowDeleting(false)
+                .Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true))
+                .Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+        .CancelRowChanges(SharedLocalizer["Cancel"])
+        .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+        .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]))
+            )
+            // .OnInitNewRow(@<text>InitVacancyChildNewRow</text>)
+            .OnInitNewRow("onInitNewRow")
+            //   .OnEditorPreparing("onEditorPreparing")
+            //.OnEditorPreparing("onEditorPreparing_VacancyOccupations")
+        )
+
+
+                            }
+
+                            @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tab14Template"))
+                            {
+
+                                <div class="columns">
+                                    <div class="column">
+                                        @using (Html.BeginForm("SaveSpeicalNeeds", "Resume", FormMethod.Post, new { id = "saveSpeicalNeeds" }))
+                                        {
+                                            @(Html.DevExtreme().Form<ResumeBuilder.Models.JobSeekerPod>()
+                 .ID("speicalNeeds-form").RtlEnabled(CultureHelper.IsRighToLeft())
+                            .ShowColonAfterLabel(false)
+                            .ShowValidationSummary(true)
+                            .LabelLocation(FormLabelLocation.Left)
+                            .ScrollingEnabled(true)
+            .ShowValidationSummary(true)
+            .Items(items => {
+                items.AddGroup()
+                    .Caption(SharedLocalizer["POD"])
+                    .Items(groupItems => {
+                        groupItems.AddSimpleFor(m=>m.SpeicalNeeds_ID).Label(l => l.Text(SharedLocalizer["Disabilities"]).Alignment(HorizontalAlignment.Left))
+                        .Editor(e=>e.TagBox()
+                        .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetSpecialNeed").Key("Id")).ValueExpr("Id").DisplayExpr(dropdownTextVale).HideSelectedItems(true).ShowSelectionControls(true).AcceptCustomValue(true));
+                    });
+            }))
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="columns">
+                                    <div class="column">
+                                        @(Html.DevExtreme().Button().Disabled(true)
+                        .Text(SharedLocalizer["Save"])
+                        .Width(90).UseSubmitBehavior(false)
+                        .OnClick("DevAV.employees.saveSpeicalNeeds")
+                )
+                                    </div>
+                                </div>
+
+                            }
+                            @Html.AntiForgeryToken()
+                        </div>
+                        <br />
+                        <div>
+                            <!--JobSeekerGrieveance-->
+                            @await Html.PartialAsync("Partial/_JobSeekerGrieveanceAppealPartial")
+                            <!--End -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Education Training and Other Information-->
+            <div class="mt-6 sm:mt-2 2xl:mt-5">
+                <div>
+                    <div class="max-w-5xl mx-auto px-2 sm:px-2 lg:px-2">
+                        <nav class="-mb-px flex  space-x-8 " aria-label="Tabs">
+                            <!-- Current: "border-primary text-gray-900", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
+                            <a x-on:click.prevent="setCurrentTab(1)" href="#"
+                               x-bind:class="currentTab==1?'border-primary text-gray-900 ':'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                               class="whitespace-nowrap py-4 px-1 border-b-2 text-lg font-semibold" aria-current="page">
+                                @SharedLocalizer["OtherInformation"]
+                                <span x-text="currentTab"></span>
+                            </a>
+                        </nav>
+                        @await Html.PartialAsync("Partial/_AnswerResult")
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <br /><br />
+
+        </div>
+    </aside>
+
+</div>
+
+<!--Dropdown Template Get Designation -->
+@using (Html.DevExtreme().NamedTemplate("DropDownBoxTemplate"))
+{
+    @(Html.DevExtreme().DropDownBox()
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetDesignation").Key("Id"))
+        .Value(new JS("value"))
+        .ValueExpr("Id")
+        .DisplayExpr(dropdownTextVale)
+        .DropDownOptions(options => options.Width(500))
+        .Option("setValue", new JS("setValue"))
+        .ContentTemplate(new TemplateName("ContentTemplate"))
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("ContentTemplate"))
+{
+    @(Html.DevExtreme().DataGrid()
+                                        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetDesignation").Key("Id"))
+                                        .RemoteOperations(true)
+                                        .Height(250)
+                                        .Columns(c => {
+                                            c.Add().DataField(dropdownTextVale).Caption(SharedLocalizer["DesignationID"]);
+                                        })
+                                       // .Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+                                        .FilterRow(filterRow => filterRow.Visible(true).ApplyFilter(GridApplyFilterMode.Auto))                                       
+                                        .Paging(z=>z.PageSize(10))
+                                        .HoverStateEnabled(true)
+                                        .RemoteOperations(true)
+                                        .Selection(s => s.Mode(SelectionMode.Single))
+                                        .SelectedRowKeys(new JS("[component.option('value')]"))
+                                        .FocusedRowEnabled(true)
+                                        .FocusedRowKey(new JS("component.option('value')"))
+                                        .OnSelectionChanged("function(selectionChangedArgs) { onSelectionChangedDropDown(selectionChangedArgs, component) }")
+                                    )
+}
+<!--End dropdown template-->
+<!--Dropdown Template Get Institue -->
+@using (Html.DevExtreme().NamedTemplate("DropDownBoxInstituteTemplate"))
+{
+    @(Html.DevExtreme().DropDownBox()
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetInstitute").Key("Id"))
+        .Value(new JS("value"))
+        .ValueExpr("Id")
+        .DisplayExpr(dropdownTextVale)
+        .DropDownOptions(options => options.Width(500))
+        .Option("setValue", new JS("setValue"))
+        .ContentTemplate(new TemplateName("ContentInstituteTemplate"))
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("ContentInstituteTemplate"))
+{
+    @(Html.DevExtreme().DataGrid()
+                                        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetInstitute").Key("Id"))
+                                        .RemoteOperations(true)
+                                        .Height(250)
+                                        .Columns(c => {
+                                            c.Add().DataField(dropdownTextVale).Caption(SharedLocalizer["Institute"]);
+                                        })
+                                      //  .Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+                                        .FilterRow(filterRow => filterRow.Visible(true).ApplyFilter(GridApplyFilterMode.Auto)
+    )
+                                        .HoverStateEnabled(true)
+                                        .RemoteOperations(true)
+                                        .Selection(s => s.Mode(SelectionMode.Single))
+                                        .SelectedRowKeys(new JS("[component.option('value')]"))
+                                        .FocusedRowEnabled(true)
+                                        .FocusedRowKey(new JS("component.option('value')"))
+                                        .OnSelectionChanged("function(selectionChangedArgs) { onSelectionChangedDropDown(selectionChangedArgs, component) }")
+                                    )
+}
+<!--End dropdown template-->
+<!--Dropdown Template Get Employer -->
+@using (Html.DevExtreme().NamedTemplate("DropDownBoxEmployerTemplate"))
+{
+    @(Html.DevExtreme().DropDownBox()
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetEmployer").Key("Id"))
+        .Value(new JS("value"))
+        .ValueExpr("Id")
+        .DisplayExpr(dropdownTextVale)
+        .DropDownOptions(options => options.Width(500))
+        .Option("setValue", new JS("setValue"))
+        .ContentTemplate(new TemplateName("ContentEmployerTemplate"))
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("ContentEmployerTemplate"))
+{
+    @(Html.DevExtreme().DataGrid()
+                                        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetEmployer").Key("Id"))
+                                        .RemoteOperations(true)
+                                        .Height(250)
+                                        .Columns(c => {
+                                            c.Add().DataField(dropdownTextVale).Caption(SharedLocalizer["Employer"]);
+                                        })
+                                        //.Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+                                        .FilterRow(filterRow => filterRow.Visible(true).ApplyFilter(GridApplyFilterMode.Auto)
+    )
+                                        .HoverStateEnabled(true)
+                                        .RemoteOperations(true)
+                                        .Selection(s => s.Mode(SelectionMode.Single))
+                                        .SelectedRowKeys(new JS("[component.option('value')]"))
+                                        .FocusedRowEnabled(true)
+                                        .FocusedRowKey(new JS("component.option('value')"))
+                                        .OnSelectionChanged("function(selectionChangedArgs) { onSelectionChangedDropDown(selectionChangedArgs, component) }")
+                                    )
+}
+<!--End dropdown template-->
+<!--Dropdown Template Get Univeristy -->
+@using (Html.DevExtreme().NamedTemplate("DropDownBoxUniversityTemplate"))
+{
+    @(Html.DevExtreme().DropDownBox()
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetUniversity").Key("Id"))
+        .Value(new JS("value"))
+        .ValueExpr("Id")
+        .DisplayExpr(dropdownTextVale)
+        .DropDownOptions(options => options.Width(500))
+        .Option("setValue", new JS("setValue"))
+        .ContentTemplate(new TemplateName("ContentUniversityTemplate"))
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("ContentUniversityTemplate"))
+{
+    @(Html.DevExtreme().DataGrid()
+                                        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetUniversity").Key("Id"))
+                                        .RemoteOperations(true)
+                                        .Height(250)
+                                        .Columns(c => {
+                                            c.Add().DataField(dropdownTextVale).Caption(SharedLocalizer["University"]);
+                                        })
+                                       // .Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+                                        .FilterRow(filterRow => filterRow.Visible(true).ApplyFilter(GridApplyFilterMode.Auto)
+    )
+                                        .HoverStateEnabled(true)
+                                        .RemoteOperations(true)
+                                        .Selection(s => s.Mode(SelectionMode.Single))
+                                        .SelectedRowKeys(new JS("[component.option('value')]"))
+                                        .FocusedRowEnabled(true)
+                                        .FocusedRowKey(new JS("component.option('value')"))
+                                        .OnSelectionChanged("function(selectionChangedArgs) { onSelectionChangedDropDown(selectionChangedArgs, component) }")
+                                    )
+}
+<!--End dropdown template-->
+<!--Dropdown Template Get Univeristy -->
+@using (Html.DevExtreme().NamedTemplate("DropDownBoxCourseTemplate"))
+{
+    @(Html.DevExtreme().DropDownBox()
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCourse").Key("Id"))
+        .Value(new JS("value"))
+        .ValueExpr("Id")
+        .DisplayExpr(dropdownTextVale)
+        .DropDownOptions(options => options.Width(500))
+        .Option("setValue", new JS("setValue"))
+        .ContentTemplate(new TemplateName("ContentCourseTemplate"))
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("ContentCourseTemplate"))
+{
+    @(Html.DevExtreme().DataGrid()
+                                        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCourse").Key("Id"))
+                                        .RemoteOperations(true)
+                                        .Height(250)
+                                        .Columns(c => {
+                                            c.Add().DataField(dropdownTextVale).Caption(SharedLocalizer["Course"]);
+                                        })
+                                       // .Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+                                        .FilterRow(filterRow => filterRow.Visible(true).ApplyFilter(GridApplyFilterMode.Auto)
+    )
+                                        .HoverStateEnabled(true)
+                                        .RemoteOperations(true)
+                                        .Selection(s => s.Mode(SelectionMode.Single))
+                                        .SelectedRowKeys(new JS("[component.option('value')]"))
+                                        .FocusedRowEnabled(true)
+                                        .FocusedRowKey(new JS("component.option('value')"))
+                                        .OnSelectionChanged("function(selectionChangedArgs) { onSelectionChangedDropDown(selectionChangedArgs, component) }")
+                                    )
+}
+<!--End dropdown template-->
+<!--Dropdown Template Get InternationalCities -->
+@using (Html.DevExtreme().NamedTemplate("DropDownBoxCountryCityTemplate"))
+{
+    @(Html.DevExtreme().DropDownBox()
+        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+        .Value(new JS("value"))
+        .ValueExpr("Id")
+        .DisplayExpr(dropdownTextVale)
+        .DropDownOptions(options => options.Width(500))
+        .Option("setValue", new JS("setValue"))
+        .ContentTemplate(new TemplateName("ContentCountryCityTemplate"))
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("ContentCountryCityTemplate"))
+{
+    @(Html.DevExtreme().DataGrid()
+                                        .DataSource(d => d.Mvc().Controller("Resume").LoadAction("GetCountryCity").Key("Id"))
+                                        .RemoteOperations(true)
+                                        .Height(250)
+                                        .Columns(c => {
+                                            c.Add().DataField(dropdownTextVale).Caption(SharedLocalizer["City"]);
+                                        })
+                                       // .Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+                                        .FilterRow(filterRow => filterRow.Visible(true).ApplyFilter(GridApplyFilterMode.Auto)
+    )
+                                        .HoverStateEnabled(true)
+                                        .RemoteOperations(true)
+                                        .Selection(s => s.Mode(SelectionMode.Single))
+                                        .SelectedRowKeys(new JS("[component.option('value')]"))
+                                        .FocusedRowEnabled(true)
+                                        .FocusedRowKey(new JS("component.option('value')"))
+                                        .OnSelectionChanged("function(selectionChangedArgs) { onSelectionChangedDropDown(selectionChangedArgs, component) }")
+                                    )
+}
+<!--End dropdown template-->
+<!-- Main content -->
+<!--Resume list filter popup-->
+@await Html.PartialAsync("Partial/_ResumeListFilterPartial")
+<!--End resume list filter popup-->
+<!--Applied Vacancy-->
+@await Html.PartialAsync("Partial/_VacancyApplyPartial", dropdownTextVale)
+@await Html.PartialAsync("Partial/_VacancyApplyPreviousHistoryPartial", dropdownTextVale)
+<!--End Applied Vacancy-->
+<!--Training Vacancy-->
+@await Html.PartialAsync("Partial/_TrainingApplyPartial", dropdownTextVale)
+@await Html.PartialAsync("Partial/_TrainingApplyPreviousHistoryPartial", dropdownTextVale)
+<!--End Training Vacancy-->
+<!--Assessment popup-->
+@await Html.PartialAsync("Partial/_AssessmentPartial")
+<!--End Assessment popup-->
+<!--CoverLetter popup-->
+@await Html.PartialAsync("Partial/_CoverLetterPartial")
+<!--End CoverLetter popup-->
+<!--Integration popup-->
+@await Html.PartialAsync("Partial/_IntegrationPartial")
+<!--End Integration popup-->
+<!--Add and Update Status not in use-->
+@(Html.DevExtreme().Popup()
+    .ID("status-popup")
+    .Width(400)
+    .Height(200).RtlEnabled(CultureHelper.IsRighToLeft())
+    .ShowTitle(false)
+    .ShowCloseButton(false)
+    .ContentTemplate(@<text><div class="edit-label" id="text-label">Status</div></text>))
+<!-- End -->
+<script src="~/js/devextreme/resume.js?version=@System.DateTime.Now"></script>
+<script>
+    function onSelectionChangedDropDown(selectionChangedArgs, component) {
+        var setValue = component.option('setValue');
+        var selectedRowKey = selectionChangedArgs.selectedRowKeys[0];
+
+        component.option('value', selectedRowKey);
+        setValue(selectedRowKey);
+        if (selectionChangedArgs.selectedRowKeys.length > 0) {
+            component.close();
+        }
+    }
+    function onEditorPreparing(e) {
+        if (e.parentType === "dataRow" && e.dataField === "Reason_ID") {
+            e.editorOptions.disabled = (typeof e.row.data.Status_ID !== "number");
+        }
+    }
+    function getReasons(options) {
+        return {
+            store: DevExpress.data.AspNet.createStore({
+                key: "Rid",
+                loadUrl: '@Url.Action("GetReasonByStatus", "lookup", new { httproute = true })'
+            }),
+            filter: options.data ? ["Status_ID", "=", options.data.Status_ID] : null
+        };
+    }
+    function setStateValue(rowData, value) {
+        rowData.Status_ID = value;
+        rowData.Reason_ID = null;
+    }
+
+    //Eduction Section
+    function onEditorPreparing_Education(e) {
+        if (e.parentType === "dataRow" && e.dataField === "Education_Type_Id") {
+            e.editorOptions.disabled = (typeof e.row.data.Education_Group_Id !== "number");
+        }
+
+        if (e.parentType === "dataRow" && e.dataField === "Education_Major_Id") {
+            e.editorOptions.disabled = (typeof e.row.data.Education_Type_Id !== "number");
+        }
+    }
+
+    function getEducationType(options) {
+        let educationGroupId = options.data != null ? options.data.Education_Group_Id : 0;
+        let url = 'api/lookup/';
+        // pass the filter only when editing :)
+        if (educationGroupId != 0) {
+            url = url + "GetEducationTypeByGroupID?groupID=" + educationGroupId;
+        } else {
+            url = url + "GetEducationType"
+        }
+        var result = { store: DevExpress.data.AspNet.createStore({ key: "Id", loadMode: "raw", loadUrl: url }) };
+        return result;
+    }
+    function setEducationValue(rowData, value) {
+        rowData.Education_Group_Id = value;
+        rowData.Education_Type_Id = null;
+    }
+    //---------------------------------------------------------
+    function getEducationMajor(options) {
+        let educationGroupId = options.data != null ? options.data.Education_Group_Id : 0;
+        let educationTypeId = options.data != null ? options.data.Education_Type_Id : 0;
+        let url = 'api/lookup/';
+        // pass the filter only when editing :)
+        if (educationTypeId != 0) { url = url + "GetEducationMajorByGroupIDandTypeId?groupID=" + educationGroupId + "&typeID=" + educationTypeId; }
+
+        else {
+            url = url + "GetEducationMajor";
+        }
+
+        var result = { store: DevExpress.data.AspNet.createStore({ key: "Id", loadMode: "raw", loadUrl: url }) };
+        return result;
+    }
+    function setEducationMajorValue(rowData, value) {
+        rowData.Education_Type_Id = value;
+        rowData.Education_Major_Id = null;
+    }
+    //End Education Section
+
+    function getUrlForTakeAssessment(templateID) {
+        window.open("showassessment?templateId=" + templateID + "&Rid=" + getResumeId());
+    }
+
+
+
+    function fileUploader_valueChanged(e, setValueFunction) {
+      //  var key = e.element.attr('data-id');
+       // e.component.option('uploadUrl', '/Index/FileUpload?key=' + key);
+        setValueFunction(e.value[0].name);
+    }
+
+    function uploadFile(file) {
+       var formData = new FormData();
+        formData.append("file", file, file.name);
+        formData.append('__RequestVerificationToken', $('[name=__RequestVerificationToken]').val());
+        formData.append('UniqueAttachmentID', getAttachmentId());
+        return $.ajax({
+            url: '@Url.Page("jobseeker", "FileUpload")',
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    }
+    $.ajaxSetup({
+        data: {
+            __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value
+        }
+    });
+
+
+    //--------------------------
+
+    function onEditorPreparing_VacancyOccupations(e) {
+        if (e.parentType === "dataRow" && e.dataField === "OccupationId") {
+            e.editorOptions.disabled = (typeof e.row.data.SkillGroupId !== "number");
+        }
+
+    }
+    function getSkillGroupOccupations(options) {
+        var skillGroupId = options.data != null ? options.data.SkillGroupId : 0;
+
+        //console.log("SkillGroupId: " + skillGroupId);
+
+        var url = 'api/lookup/GetSkillGroupOccupation';
+
+        // pass the filter only when editing :)
+        if (skillGroupId != 0) { url = url + "/" + skillGroupId };
+
+        var result = { store: DevExpress.data.AspNet.createStore({ key: "Id", loadMode: "raw", loadUrl: url }) };
+
+        return result;
+    }
+
+    function setSkillGroupId(rowData, value) {
+        rowData.SkillGroupId = value;
+        rowData.OccupationId = null;
+
+    }
+
+
+    function asyncEmirateValidation(params) {
+        return $.ajax({
+            url: 'api/lookup/CheckEmiratesIdUniqueKey/'+params.value,
+            type: "Get",
+            contentType: "application/json"
+        });
+    }
+
+</script>
+

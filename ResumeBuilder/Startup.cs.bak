@@ -1,0 +1,93 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using ResumeBuilder.DapperUnitOfWork;
+using ResumeBuilder.Models;
+using ResumeBuilder.Repository;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ResumeBuilder
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddRazorPages();
+            services.AddControllers();
+            services.AddOptions();
+            services.Configure<DBConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
+            services.Configure<LookUpDBApi>(Configuration.GetSection("LookUpDBApi"));
+            string connectionString = Configuration.GetConnectionString("JobSeekerDatabase");
+            services.AddTransient(typeof(IGenericRepositoryPaggingDapper<>), typeof(GenericRepositoryPaggingDapper<>));
+            services.AddTransient<IResumeRepository, ResumeRepository>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>(service => new UnitOfWork(connectionString));
+            
+
+            services.AddDbContext<JobSeekerContext>(options => options.UseSqlServer(connectionString));
+
+            services.AddCors(options => options.AddPolicy("CorsPolicy",
+              builder =>
+              {
+                  builder
+                  .AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+                  //.AllowCredentials(); //AllowCrdentials and Alloworining with * cannot be together.
+              }));
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ar-AE") };
+                options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
+                options.SupportedUICultures = supportedCultures;
+            });
+
+            services.AddMemoryCache();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        {
+            var path = Directory.GetCurrentDirectory();
+            loggerFactory.AddFile($"c:\\Logs\\ResumeBuilder.txt");
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+            }
+
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+            });
+        }
+    }
+}

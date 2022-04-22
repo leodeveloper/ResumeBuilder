@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<visualDesignerDiagram dslVersion="1.0.0.0" Id="7ba77c7e-db7d-40b4-92fa-46e910dffce8" absoluteBounds="0, 0, 11, 17" name="HCLIVEORMDataModel">
+  <dataBaseObjectModelMoniker Id="071f3dbb-e6dc-4fde-828c-5693620b7b19" />
+  <nestedChildShapes>
+    <xpObjectShape Id="ad061db0-fef0-4087-82df-8596fbcfe96e" absoluteBounds="1.125, 0.75, 1.5, 15.985379231770835">
+      <xpObjectMoniker Id="c88bc95d-4241-40f1-8970-a9ad1858e8c0" />
+      <nestedChildShapes>
+        <elementListCompartment Id="0f473b5f-efe2-4dac-83a3-a1035c394443" absoluteBounds="1.1400000000000001, 1.06, 1.4700000000000002, 12.748982747395832" name="Fields" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="e25c72b6-1a06-4ab6-8310-f7fb8392a00d" absoluteBounds="1.1400000000000001, 13.818982747395832, 1.4700000000000002, 2.5570068359375" name="Indexes" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="775698c0-50ca-42a2-aa46-7a6539d65b94" absoluteBounds="1.1400000000000001, 16.385989583333334, 1.4700000000000002, 0.2493896484375" name="Collections" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </xpObjectShape>
+  </nestedChildShapes>
+</visualDesignerDiagram>

@@ -1,0 +1,57 @@
+﻿/** Declare all CSS variable here*/
+:root {
+    --color-primary: #658494;
+}
+
+
+/* Default mobile
+-------------------------------------------------- */
+html {
+    font-size: 14px;
+}
+
+/* Below media to target small to large device
+-------------------------------------------------- */
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) silver;
+}
+
+    /* Works on Chrome, Edge, and Safari */
+    *::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: silver;
+    }
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: 20px;
+    border: 3px solid silver;
+}
+
+ 
+
+
+.bg-primary {
+    background-color: var(--color-primary);
+}
+
+.text-primary {
+    color: var(--color-primary);
+}
+
+.border-primary {
+    border-color: var(--color-primary);
+}
+
+
+

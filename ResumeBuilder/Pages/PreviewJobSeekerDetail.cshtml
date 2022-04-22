@@ -1,0 +1,2302 @@
+﻿@page
+@model ResumeBuilder.Pages.PreviewJobSeekerDetailModel
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@{
+    Layout = null;
+    ViewData["Title"] = "HRA-ADERP Perview";
+}
+
+<!DOCTYPE html>
+<html lang="@CultureHelper.GetCurrentCulture()" dir="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")" class="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Seeker</title>
+    <link href="~/images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+    <link href="~/css/jsreport.css" rel="stylesheet" />
+    <script src="~/js/cdn.min.js" defer></script>
+</head>
+<body x-data="pagedata">
+    <div class="min-h-screen bg-gray-100">
+        <div class="mx-auto">
+
+
+            <div class="relative bg-white shadow-xl">
+                <h2 class="sr-only">Personal Information</h2>
+
+
+
+                @if (Model.resume.status == Models.APIStatus.success)
+                {
+                    if (Model.resume.data != null)
+                    {
+                        var _resume = Model.resume.data;
+                        <div class="grid grid-cols-1 lg:grid-cols-4">
+
+
+                            <!-- Contact information -->
+                            <div class="relative overflow-hidden  py-10  px-6   bg-[#658494]   sm:px-10    xl:p-12 ">
+                                <div class="absolute inset-0 pointer-events-none sm:hidden"
+                                     aria-hidden="true">
+                                    <svg class="absolute inset-0 w-full h-full"
+                                         width="343"
+                                         height="388"
+                                         viewBox="0 0 343 388"
+                                         fill="none"
+                                         preserveAspectRatio="xMidYMid slice"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M-99 461.107L608.107-246l707.103 707.107-707.103 707.103L-99 461.107z"
+                                              fill="url(#linear1)"
+                                              fill-opacity=".1" />
+                                        <defs>
+                                            <linearGradient id="linear1"
+                                                            x1="254.553"
+                                                            y1="107.554"
+                                                            x2="961.66"
+                                                            y2="814.66"
+                                                            gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#fff"></stop>
+                                                <stop offset="1"
+                                                      stop-color="#fff"
+                                                      stop-opacity="0"></stop>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="hidden    absolute        top-0           right-0         bottom-0    w-1/2     pointer-events-none    sm:block      lg:hidden" aria-hidden="true">
+                                    <svg class="absolute inset-0 w-full h-full"
+                                         width="359"
+                                         height="339"
+                                         viewBox="0 0 359 339"
+                                         fill="none"
+                                         preserveAspectRatio="xMidYMid slice"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M-161 382.107L546.107-325l707.103 707.107-707.103 707.103L-161 382.107z"
+                                              fill="url(#linear2)"
+                                              fill-opacity=".1" />
+                                        <defs>
+                                            <linearGradient id="linear2"
+                                                            x1="192.553"
+                                                            y1="28.553"
+                                                            x2="899.66"
+                                                            y2="735.66"
+                                                            gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#fff"></stop>
+                                                <stop offset="1"
+                                                      stop-color="#fff"
+                                                      stop-opacity="0"></stop>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class=" hidden absolute top-0 right-0 bottom-0  w-1/2  pointer-events-none lg:block" aria-hidden="true">
+                                    <svg class="absolute inset-0 w-full h-full"
+                                         width="160"
+                                         height="678"
+                                         viewBox="0 0 160 678"
+                                         fill="none"
+                                         preserveAspectRatio="xMidYMid slice"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M-161 679.107L546.107-28l707.103 707.107-707.103 707.103L-161 679.107z"
+                                              fill="url(#linear3)"
+                                              fill-opacity=".1" />
+                                        <defs>
+                                            <linearGradient id="linear3"
+                                                            x1="192.553"
+                                                            y1="325.553"
+                                                            x2="899.66"
+                                                            y2="1032.66"
+                                                            gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#fff"></stop>
+                                                <stop offset="1"
+                                                      stop-color="#fff"
+                                                      stop-opacity="0"></stop>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-medium text-white mt-6">
+                                    Personal Information
+                                </h3>
+                                <div class="w-full">
+                                    <div class="flex justify-between  items-center xl:items-start flex-col xl:flex-row">
+                                        <div class="flex-shrink-0 mt-4 ring-4 ring-gray-200 ring-opacity-50 rounded-full">
+                                            <img class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32" src="@_resume.JobSeekerPhoto" />
+                                        </div>
+                                        <dl class=" mt-2    border-b border-white   divide-y divide-gray-100  w-full">
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Name</dt>
+                                                <dd class="text-gray-100">@_resume.JS_ENG_NAME</dd>
+                                            </div>
+
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Date Of Birth</dt>
+                                                <dd class="text-gray-100">@_resume.DOB?.ToString("yyyy-MM-dd")</dd>
+                                            </div>
+
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Martial Status</dt>
+                                                <dd class="text-gray-100">@_resume.MARITALSTATUS</dd>
+                                            </div>
+
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">City / Location</dt>
+                                                <dd class="text-gray-100">@_resume.CITY</dd>
+                                            </div>
+                                        </dl>
+                                    </div>
+
+                                </div>
+
+                                <h3 class="text-lg font-medium text-white mt-6">
+                                    General Information
+                                </h3>
+
+                                <div>
+                                    <div>
+                                        <dl class="mt-2 border-b border-white divide-y divide-gray-100">
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Jobseeker ID</dt>
+                                                <dd class="text-gray-100">@_resume.JOBSEEKERID</dd>
+                                            </div>
+
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Email Address</dt>
+                                                <dd class="text-gray-100">@_resume.EMAILID</dd>
+                                            </div>
+
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Mobile Number</dt>
+                                                <dd class="text-gray-100">@_resume.MOBILEPHONE</dd>
+                                            </div>
+
+                                            <div class="py-3 flex justify-between text-sm font-medium">
+                                                <dt class="text-white">Total Experience</dt>
+                                                <dd class="text-gray-100">@_resume.TOTALEXPERIENCE Years</dd>
+                                            </div>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <h3 class="text-lg font-medium text-white mt-6">
+                                    Qualification Information (Highest)
+                                </h3>
+                                <div>
+                                    <dl class="mt-2 border-b border-white divide-y divide-gray-100">
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Degree</dt>
+                                            <dd class="text-gray-100">@_resume.EDUCATION</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Type</dt>
+                                            <dd class="text-gray-100">@_resume.EDUCATION_GROUP</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Major</dt>
+                                            <dd class="text-gray-100">@_resume.SPECIALIZATIONTITLE</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Institute</dt>
+                                            <dd class="text-gray-100">@_resume.INSTITUTE</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Graduation Year</dt>
+                                            <dd class="text-gray-100">@_resume.YEARS</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+
+                                <h3 class="text-lg font-medium text-white mt-6">
+                                    Letter Information
+                                </h3>
+                                <div>
+                                    <dl class="mt-2 border-b border-white divide-y divide-gray-100">
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Source</dt>
+                                            <dd class="text-gray-100">@_resume.SOURCENAME</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Letter Number</dt>
+                                            <dd class="text-gray-100">@_resume.LETTERNUMBER</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Date</dt>
+                                            <dd class="text-gray-100">@_resume.LETTERDATE?.ToString("yyyy-MM-dd")</dd>
+                                        </div>
+
+                                        <div class="py-3 flex justify-between text-sm font-medium">
+                                            <dt class="text-white">Graduation Year</dt>
+                                            <dd class="text-gray-100">@_resume.YEARS</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            </div>
+                            <!--Profile Summary-->
+                            <div class="py-6 px-6 sm:px-10 lg:col-span-3">
+                                <div class="">
+                                    <div class="px-4 py-5 sm:px-6 bg-[#658494] shadow sm:rounded-t-lg">
+                                        <h2 id="notes-title" class="text-lg font-medium text-white">
+                                            Profile Summary
+                                        </h2>
+                                    </div>
+
+                                    <dl class="
+                    grid grid-cols-1
+                    gap-5
+                    sm:grid-cols-5
+                    bg-gray-50
+                    px-4
+                    py-4
+                  ">
+                                        <div class="
+                      relative
+                      bg-white
+                      pt-5
+                      px-4
+                      pb-12
+                      sm:pt-6 sm:px-6
+                      shadow
+                      rounded-lg
+                      overflow-hidden
+                    ">
+                                            <dt>
+                                                <div class="absolute bg-[#658494] rounded-md p-3">
+                                                    <!-- Heroicon name: outline/users -->
+                                                    <svg class="h-6 w-6 text-white"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         fill="none"
+                                                         viewBox="0 0 24 24"
+                                                         stroke="currentColor"
+                                                         aria-hidden="true">
+                                                        <path stroke-linecap="round"
+                                                              stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p class="ml-16 text-sm font-medium text-gray-500 truncate">
+                                                    Total Nominations
+                                                </p>
+                                            </dt>
+                                            <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                                                <p class="text-2xl font-semibold text-gray-900">@_resume.ProfileSummaryDto.NOMINATIONS</p>
+
+                                                <div class="
+                          absolute
+                          bottom-0
+                          inset-x-0
+                          bg-gray-50
+                          px-4
+                          py-4
+                          sm:px-6
+                        ">
+                                                    <div class="text-sm">
+                                                        <span class="
+                              font-medium
+                              text-gray-600
+                              hover:text-green-500
+                            ">
+                                                            Nomination means first submission
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+
+                                        <div class="
+                      relative
+                      bg-white
+                      pt-5
+                      px-4
+                      pb-12
+                      sm:pt-6 sm:px-6
+                      shadow
+                      rounded-lg
+                      overflow-hidden
+                    ">
+                                            <dt>
+                                                <div class="absolute bg-[#658494] rounded-md p-3">
+                                                    <!-- Heroicon name: outline/users -->
+                                                    <svg class="h-6 w-6 text-white"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         fill="none"
+                                                         viewBox="0 0 24 24"
+                                                         stroke="currentColor"
+                                                         aria-hidden="true">
+                                                        <path stroke-linecap="round"
+                                                              stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p class="ml-16 text-sm font-medium text-gray-500 truncate">
+                                                    Pending Journeys
+                                                </p>
+                                            </dt>
+                                            <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                                                <p class="text-2xl font-semibold text-gray-900">@_resume.ProfileSummaryDto.PENDING_JOURNEY</p>
+
+                                                <div class="
+                          absolute
+                          bottom-0
+                          inset-x-0
+                          bg-gray-50
+                          px-4
+                          py-4
+                          sm:px-6
+                        ">
+                                                    <div class="text-sm">
+                                                        <span class="
+                              font-medium
+                              text-gray-600
+                              hover:text-green-500
+                            ">
+                                                            Nomination means first submission
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+
+                                        <div class="
+                      relative
+                      bg-white
+                      pt-5
+                      px-4
+                      pb-12
+                      sm:pt-6 sm:px-6
+                      shadow
+                      rounded-lg
+                      overflow-hidden
+                    ">
+                                            <dt>
+                                                <div class="absolute bg-[#658494] rounded-md p-3">
+                                                    <!-- Heroicon name: outline/users -->
+                                                    <svg class="h-6 w-6 text-white"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         fill="none"
+                                                         viewBox="0 0 24 24"
+                                                         stroke="currentColor"
+                                                         aria-hidden="true">
+                                                        <path stroke-linecap="round"
+                                                              stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p class="ml-16 text-sm font-medium text-gray-500 truncate">
+                                                    Total Rejections
+                                                </p>
+                                            </dt>
+                                            <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                                                <p class="text-2xl font-semibold text-gray-900">@_resume.ProfileSummaryDto.REJECTION</p>
+
+                                                <div class="
+                          absolute
+                          bottom-0
+                          inset-x-0
+                          bg-gray-50
+                          px-4
+                          py-4
+                          sm:px-6
+                        ">
+                                                    <div class="text-sm">
+                                                        <span class="
+                              font-medium
+                              text-gray-600
+                              hover:text-green-500
+                            ">
+                                                            Nomination means first submission
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+
+                                        <div class="
+                      relative
+                      bg-white
+                      pt-5
+                      px-4
+                      pb-12
+                      sm:pt-6 sm:px-6
+                      shadow
+                      rounded-lg
+                      overflow-hidden
+                    ">
+                                            <dt>
+                                                <div class="absolute bg-[#658494] rounded-md p-3">
+                                                    <!-- Heroicon name: outline/users -->
+                                                    <svg class="h-6 w-6 text-white"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         fill="none"
+                                                         viewBox="0 0 24 24"
+                                                         stroke="currentColor"
+                                                         aria-hidden="true">
+                                                        <path stroke-linecap="round"
+                                                              stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p class="ml-16 text-sm font-medium text-gray-500 truncate">
+                                                    Total Interviews
+                                                </p>
+                                            </dt>
+                                            <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                                                <p class="text-2xl font-semibold text-gray-900">@_resume.ProfileSummaryDto.INTERVIEW</p>
+
+                                                <div class="
+                          absolute
+                          bottom-0
+                          inset-x-0
+                          bg-gray-50
+                          px-4
+                          py-4
+                          sm:px-6
+                        ">
+                                                    <div class="text-sm">
+                                                        <span class="
+                              font-medium
+                              text-gray-600
+                              hover:text-green-500
+                            ">
+                                                            Nomination means first submission
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+
+                                        <div class="
+                      relative
+                      bg-white
+                      pt-5
+                      px-4
+                      pb-12
+                      sm:pt-6 sm:px-6
+                      shadow
+                      rounded-lg
+                      overflow-hidden
+                    ">
+                                            <dt>
+                                                <div class="absolute bg-[#658494] rounded-md p-3">
+                                                    <!-- Heroicon name: outline/users -->
+                                                    <svg class="h-6 w-6 text-white"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         fill="none"
+                                                         viewBox="0 0 24 24"
+                                                         stroke="currentColor"
+                                                         aria-hidden="true">
+                                                        <path stroke-linecap="round"
+                                                              stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p class="ml-16 text-sm font-medium text-gray-500 truncate">
+                                                    ADSG Assessment
+                                                </p>
+                                            </dt>
+                                            <dd class="ml-16 pb-6 flex items-baseline sm:pb-7">
+                                                <p class="text-2 font-semibold text-gray-900">@_resume.Overall_Rating_Matrix_Grid</p>
+
+                                                <div class="
+                          absolute
+                          bottom-0
+                          inset-x-0
+                          bg-gray-50
+                          px-4
+                          py-4
+                          sm:px-6
+                        ">
+                                                    <div class="text-sm">
+                                                        <span class="
+                              font-medium
+                              text-gray-600
+                              hover:text-green-500
+                            ">
+                                                            Overall Assessment Results
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                                <!--Assessment-->
+
+                                <div class="w-full grid grid-cols-1 gap-x-4 mt-4">
+                                    @if (_resume.OVERALL_SCORE_PER_CANDIDATE > 0)
+                                    { 
+                                    <div class="shadow">
+                                        <div class="px-4 py-5 sm:px-6 bg-[#658494] shadow sm:rounded-t-lg">
+                                            <div class="flex justify-between">
+                                                <h2 id="notes-title"
+                                                    class="text-lg font-medium text-white">
+                                                    Profile Assessments
+                                                </h2>
+                                                <h2 id="notes-title"
+                                                    class="text-lg font-medium text-white">
+                                                    <span class="inline-flex  items-center  px-2.5   py-0.5 rounded-md text-sm  font-medium bg-gray-100 text-gray-500 ">
+                                                        Overall Score
+                                                        <span class="inline-flex mx-2 text-lg text-gray-800">@_resume.OVERALL_SCORE_PER_CANDIDATE</span>
+                                                    </span>
+                                                </h2>
+                                            </div>
+                                        </div>
+
+                                        <div class="py-4 px-4 bg-white sm:px-6 lg:px-8">
+                                            <div class="
+                        mt-4
+                        space-y-12
+                        lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-x-8
+                      ">
+                                                <div class="
+                          relative
+                          p-8
+                          bg-white
+                          border border-gray-200
+                          rounded-2xl
+                          shadow-sm
+                          flex flex-col
+                        ">
+                                                    <div class="flex-1">
+                                                        <h3 class="text-xl font-semibold text-gray-900">
+                                                            Thriving Index
+                                                        </h3>
+                                                        <p class="mt-4 flex items-baseline text-gray-900">
+                                                            <span class="text-5xl font-extrabold tracking-tight">@_resume.THRIVING_INDEX_OVERALL</span>
+                                                            <span class="ml-1 text-xl font-semibold">/6</span>
+                                                        </p>
+                                                        <p class="mt-4 text-gray-500">Positive Mindset</p>
+
+                                                        <ul role="list" class="mt-4 space-y-2">
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-2 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Confidence
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.THRIVING_INDEX_CONFIDENCE
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Optimism
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.THRIVING_INDEX_OPTIMISM
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Growth Mindset
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.THRIVING_INDEX_GROWTH_MINDSET
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Achievement
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.THRIVING_INDEX_ACHIEVEMENT
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Grit
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.THRIVING_INDEX_GRIT
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Resilience
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.THRIVING_INDEX_RESILIENCE
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="
+                          relative
+                          p-8
+                          bg-white
+                          border border-gray-200
+                          rounded-2xl
+                          shadow-sm
+                          flex flex-col
+                        ">
+                                                    <div class="flex-1">
+                                                        <h3 class="text-xl font-semibold text-gray-900">
+                                                            Cognitive Ability
+                                                        </h3>
+
+                                                        <p class="
+                              absolute
+                              top-0
+                              py-1.5
+                              px-4
+                              bg-green-500
+                              rounded-full
+                              text-xs
+                              font-semibold
+                              uppercase
+                              tracking-wide
+                              text-white
+                              transform
+                              -translate-y-1/2
+                            ">
+                                                            Highlight Text
+                                                        </p>
+                                                        <p class="mt-4 flex items-baseline text-gray-900">
+                                                            <span class="text-5xl font-extrabold tracking-tight">@_resume.COGNITIVE_ABILITY_AGILE_OVERALL</span>
+                                                            <span class="ml-1 text-xl font-semibold">/3</span>
+                                                        </p>
+                                                        <p class="mt-6 text-gray-500">Level of skills</p>
+
+                                                        <ul role="list" class="mt-4 space-y-2">
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-2 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Reasonify
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.COGNITIVE_ABILITY_REASONIFY
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Detectify
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.COGNITIVE_ABILITY_DETECTIFY
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Numerify
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.COGNITIVE_ABILITY_NUMERIFY
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="
+                          relative
+                          p-8
+                          bg-white
+                          border border-gray-200
+                          rounded-2xl
+                          shadow-sm
+                          flex flex-col
+                        ">
+                                                    <div class="flex-1">
+                                                        <h3 class="text-xl font-semibold text-gray-900">
+                                                            Agile Verify
+                                                        </h3>
+
+                                                        <p class="
+                              absolute
+                              top-0
+                              py-1.5
+                              px-4
+                              bg-green-500
+                              rounded-full
+                              text-xs
+                              font-semibold
+                              uppercase
+                              tracking-wide
+                              text-white
+                              transform
+                              -translate-y-1/2
+                            ">
+                                                            Highlight Text
+                                                        </p>
+                                                        <p class="mt-4 flex items-baseline text-gray-900">
+                                                            <span class="text-5xl font-extrabold tracking-tight">@_resume.COGNITIVE_ABILITY_AGILE_OVERALL</span>
+                                                            <span class="ml-1 text-xl font-semibold">/2</span>
+                                                        </p>
+                                                        <p class="mt-6 text-gray-500">Level of skills</p>
+
+                                                        <ul role="list" class="mt-4 space-y-2">
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-2 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                Agile Overall
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.COGNITIVE_ABILITY_AGILE_OVERALL
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                English Assessment
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.AGILE_VERBIFY_ENGLISH_ASSESSMENT
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="
+                          relative
+                          p-8
+                          bg-white
+                          border border-gray-200
+                          rounded-2xl
+                          shadow-sm
+                          flex flex-col
+                          mt-8
+                        ">
+                                                    <div class="flex-1">
+                                                        <h3 class="text-xl font-semibold text-gray-900">
+                                                            Microsoft Office
+                                                        </h3>
+
+                                                        <p class="
+                              absolute
+                              top-0
+                              py-1.5
+                              px-4
+                              bg-green-500
+                              rounded-full
+                              text-xs
+                              font-semibold
+                              uppercase
+                              tracking-wide
+                              text-white
+                              transform
+                              -translate-y-1/2
+                            ">
+                                                            Highlight Text
+                                                        </p>
+                                                        <p class="mt-4 flex items-baseline text-gray-900">
+                                                            <span class="text-5xl font-extrabold tracking-tight">@_resume.MICROSOFT_OFFICE_OVERALL</span>
+                                                            <span class="ml-1 text-xl font-semibold">/4</span>
+                                                        </p>
+                                                        <p class="mt-6 text-gray-500">Level of skills</p>
+
+                                                        <ul role="list" class="mt-4 space-y-2">
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-2 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                MS Office Excel
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.MICROSOFT_OFFICE_EXCEL
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                MS Office Outlook
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.MICROSOFT_OFFICE_OUTLOOK
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                MS Office PowerPoint
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.MICROSOFT_OFFICE_POWERPOINT
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                MS Office word
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.MICROSOFT_OFFICE_WORD
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="
+                          relative
+                          p-8
+                          bg-white
+                          border border-gray-200
+                          rounded-2xl
+                          shadow-sm
+                          flex flex-col
+                          mt-8
+                        ">
+                                                    <div class="flex-1">
+                                                        <h3 class="text-xl font-semibold text-gray-900">
+                                                            Top 5 Career
+                                                        </h3>
+
+                                                        <p class="
+                              absolute
+                              top-0
+                              py-1.5
+                              px-4
+                              bg-green-500
+                              rounded-full
+                              text-xs
+                              font-semibold
+                              uppercase
+                              tracking-wide
+                              text-white
+                              transform
+                              -translate-y-1/2
+                            ">
+                                                            Highlight Text
+                                                        </p>
+
+                                                        <ul role="list" class="mt-4 space-y-2">
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-2 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                <!-- Customer Service-->
+                                                                                @_resume.CAREER_TOP_01
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.CAREER_STARS_01
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                <!--Education-->
+                                                                                @_resume.CAREER_TOP_02
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.CAREER_STARS_02
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                <!-- Marketing , Advertising and public relations-->
+                                                                                @_resume.CAREER_TOP_03
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.CAREER_STARS_03
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                <!-- Human Resources and Training-->
+                                                                                @_resume.CAREER_TOP_04
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.CAREER_STARS_04
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                            <li class="flex">
+                                                                <div class="relative pt-1 w-full">
+                                                                    <div class="flex mb-1 items-center justify-between">
+                                                                        <div>
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        py-2
+                                        px-3
+                                        uppercase
+                                        rounded-lg
+                                        text-gray-600
+                                        bg-gray-300
+                                      ">
+                                                                                <!-- Media and Broadcasting-->
+                                                                                @_resume.CAREER_TOP_05
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <span class="
+                                        text-xs
+                                        font-semibold
+                                        inline-block
+                                        text-gray-600
+                                      ">
+                                                                                @_resume.CAREER_STARS_05
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="
+                                    overflow-hidden
+                                    h-2
+                                    mb-4
+                                    text-xs
+                                    flex
+                                    rounded
+                                    bg-gray-200
+                                  ">
+                                                                        <div style="width: 50%"
+                                                                             class="
+                                      shadow-none
+                                      flex flex-col
+                                      text-center
+                                      whitespace-nowrap
+                                      text-white
+                                      justify-center
+                                      bg-gray-500
+                                    "></div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    }
+                                    <div class="py-4">
+                                        <div class="
+                      px-4
+                      py-5
+                      sm:px-6
+                      bg-[#658494]
+                      shadow
+                      sm:rounded-t-lg
+                    ">
+                                            <h2 id="notes-title" class="text-lg font-medium text-white">
+                                                Top 5 active matching
+                                            </h2>
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                                <div class="
+                          py-2
+                          align-middle
+                          inline-block
+                          min-w-full
+                          sm:px-6
+                          lg:px-8
+                        ">
+                                                    <div class="
+                            shadow
+                            overflow-hidden
+                            border-b border-gray-200
+                            sm:rounded-lg
+                          ">
+                                                        <table class="min-w-full divide-y divide-gray-200">
+                                                            <thead class="bg-gray-50">
+                                                                <tr>
+                                                                    <th scope="col"
+                                                                        class="
+                                    px-6
+                                    py-3
+                                    text-left text-xs
+                                    font-medium
+                                    text-gray-500
+                                    uppercase
+                                    tracking-wider
+                                  ">
+                                                                        Employer Name
+                                                                    </th>
+                                                                    <th scope="col"
+                                                                        class="
+                                    px-6
+                                    py-3
+                                    text-left text-xs
+                                    font-medium
+                                    text-gray-500
+                                    uppercase
+                                    tracking-wider
+                                  ">
+                                                                        Job Code
+                                                                    </th>
+                                                                    <th scope="col"
+                                                                        class="
+                                    px-6
+                                    py-3
+                                    text-left text-xs
+                                    font-medium
+                                    text-gray-500
+                                    uppercase
+                                    tracking-wider
+                                  ">
+                                                                        Job Title
+                                                                    </th>
+                                                                    <th scope="col"
+                                                                        class="
+                                    px-6
+                                    py-3
+                                    text-left text-xs
+                                    font-medium
+                                    text-gray-500
+                                    uppercase
+                                    tracking-wider
+                                  ">
+                                                                        Matching Date
+                                                                    </th>
+
+                                                                    <th scope="col"
+                                                                        class="
+                                    px-6
+                                    py-3
+                                    text-left text-xs
+                                    font-medium
+                                    text-gray-500
+                                    uppercase
+                                    tracking-wider
+                                  ">
+                                                                        Reply Date
+                                                                    </th>
+
+                                                                    <th scope="col"
+                                                                        class="
+                                    px-6
+                                    py-3
+                                    text-left text-xs
+                                    font-medium
+                                    text-gray-500
+                                    uppercase
+                                    tracking-wider
+                                  ">
+                                                                        STATE
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var matchNotRejected in _resume.MatchingJourneyNotRejected)
+                                                                {
+                                                                    <!-- Odd row -->
+                                                                    <tr class="bg-white">
+                                                                        <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm
+                              font-medium
+                              text-gray-900
+                            ">
+                                                                            @matchNotRejected.NAMEEN
+                                                                        </td>
+                                                                        <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                            @matchNotRejected.JOBCODE
+                                                                        </td>
+                                                                        <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                            @matchNotRejected.VACANCYTITLE
+                                                                        </td>
+                                                                        <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                            @matchNotRejected.CREATEDDATE?.ToString("yyyy-MM-dd")
+                                                                        </td>
+
+                                                                        <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                            @matchNotRejected.STATEDATE?.ToString("yyyy-MM-dd")
+                                                                        </td>
+                                                                        <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                            @matchNotRejected.STATE
+                                                                        </td>
+                                                                    </tr>
+
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="shadow mt-4">
+                                        <div class="
+                      px-4
+                      py-5
+                      sm:px-6
+                      bg-[#658494]
+                      shadow
+                      sm:rounded-t-lg
+                    ">
+                                            <h2 id="notes-title" class="text-lg font-medium text-white">
+                                                Rejection Reasons
+                                            </h2>
+                                        </div>
+
+                                        <ol role="list" class="divide-y divide-gray-200">
+
+                                            @foreach (var matchingRejected in _resume.MatchingJourneyRejected)
+                                            {
+                                                <li>
+                                                    <div class="px-4 py-4 flex items-start sm:px-6">
+                                                        <div class="mr-2 flex-shrink-0">
+                                                            <!-- Heroicon name: solid/chevron-right -->
+                                                            <svg class="h-5 w-5 text-gray-400"
+                                                                 xmlns="http://www.w3.org/2000/svg"
+                                                                 viewBox="0 0 20 20"
+                                                                 fill="currentColor"
+                                                                 aria-hidden="true">
+                                                                <path fill-rule="evenodd"
+                                                                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                                      clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="
+                            min-w-0
+                            flex-1
+                            sm:flex sm:items-center sm:justify-between
+                          ">
+                                                            <div class="truncate">
+                                                                <div class="flex flex-col text-sm">
+                                                                    <p class="
+                                  font-medium
+                                  text-red-600
+                                  truncate
+                                  text-base
+                                ">
+                                                                        @matchingRejected.REASON_EN
+                                                                    </p>
+                                                                    <p class="
+                                  mt-2
+                                  font-medium
+                                  text-gray-600
+                                  truncate
+                                  text-sm
+                                ">
+
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            }
+
+
+
+
+                                        </ol>
+                                    </div>
+                                </div>
+                              
+
+                            </div>
+                        </div>
+                        <!--Matching Summary-->
+                        <div class="w-full px-2 py-2 overflow-hidden">
+                            <div class="px-4 py-5 sm:px-6 bg-[#658494] shadow sm:rounded-t-lg">
+                                <h2 id="notes-title" class="text-lg font-medium text-white">
+                                    Matching History Summary
+                                </h2>
+                            </div>
+
+                            <div class="flex flex-col">
+                                <div class="overflow-x-hidden sm:-mx-6 lg:-mx-8">
+                                    <div class="
+                    py-2
+                    align-middle
+                    inline-block
+                    min-w-full
+                    sm:px-6
+                    lg:px-8
+                  ">
+                                        <div class="
+                      shadow
+                      overflow-hidden
+                      border-b border-gray-200
+                      sm:rounded-lg
+                    ">
+                                            <table class="min-w-full divide-y divide-gray-200">
+                                                <thead class="bg-gray-50">
+                                                    <tr>
+                                                        <th scope="col"
+                                                            class="
+                              px-6
+                              py-3
+                              text-left text-xs
+                              font-medium
+                              text-gray-500
+                              uppercase
+                              tracking-wider
+                            ">
+                                                            Employer Name
+                                                        </th>
+                                                        <th scope="col"
+                                                            class="
+                              px-6
+                              py-3
+                              text-left text-xs
+                              font-medium
+                              text-gray-500
+                              uppercase
+                              tracking-wider
+                            ">
+                                                            Job Code
+                                                        </th>
+                                                        <th scope="col"
+                                                            class="
+                              px-6
+                              py-3
+                              text-left text-xs
+                              font-medium
+                              text-gray-500
+                              uppercase
+                              tracking-wider
+                            ">
+                                                            Job Title
+                                                        </th>
+                                                        <th scope="col"
+                                                            class="
+                              px-6
+                              py-3
+                              text-left text-xs
+                              font-medium
+                              text-gray-500
+                              uppercase
+                              tracking-wider
+                            ">
+                                                            Matching Date
+                                                        </th>
+
+                                                        <th scope="col"
+                                                            class="
+                              px-6
+                              py-3
+                              text-left text-xs
+                              font-medium
+                              text-gray-500
+                              uppercase
+                              tracking-wider
+                            ">
+                                                            Reply Date
+                                                        </th>
+                                                        <th scope="col"
+                                                            class="
+                              px-6
+                              py-3
+                              text-left text-xs
+                              font-medium
+                              text-gray-500
+                              uppercase
+                              tracking-wider
+                            ">
+                                                            State
+                                                        </th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Odd row -->
+                                                    @foreach (var match in _resume.MatchingJourneys)
+                                                    {
+                                                        <tr class="bg-white">
+                                                            <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm
+                              font-medium
+                              text-gray-900
+                            ">
+                                                                @match.NAMEEN
+                                                            </td>
+                                                            <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                @match.JOBCODE
+                                                            </td>
+                                                            <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                @match.VACANCYTITLE
+                                                            </td>
+                                                            <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                @match.CREATEDDATE?.ToString("yyyy-MM-dd")
+                                                            </td>
+
+                                                            <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                @match.STATEDATE?.ToString("yyyy-MM-dd")
+                                                            </td>
+                                                            <td class="
+                              px-6
+                              py-4
+                              whitespace-nowrap
+                              text-sm text-gray-500
+                            ">
+                                                                @match.STATE
+                                                            </td>
+                                                        </tr>
+                                                    }
+
+
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Notes-->
+                        <div class="w-full px-2 py-2 overflow-hidden">
+                            <section aria-labelledby="notes-title">
+                                <div class="bg-white shadow sm:rounded-lg sm:overflow-hidden">
+                                    <div class="divide-y divide-gray-200">
+                                        <div class="px-4 py-5 sm:px-6 bg-[#658494]">
+                                            <h2 id="notes-title" class="text-lg font-medium text-white">
+                                                Notes
+                                            </h2>
+                                        </div>
+                                        <div class="px-4 py-6 sm:px-6">
+                                            <ul role="list" class="space-y-8 divide-y divide-gray-200">
+                                                @foreach (var note in _resume.Notes)
+                                                {
+                                                    <li>
+                                                        <div class="flex space-x-3">
+                                                            <div class="flex-shrink-0">
+                                                                <img class="h-10 w-10 rounded-full" src="~/images/user.png" alt="" />
+                                                            </div>
+                                                            <div>
+                                                                <div class="text-sm">
+                                                                    <a href="#" class="font-medium text-gray-900">@note.USERNAME</a> --
+                                                                    <a href="#" class="font-medium text-gray-900">@note.NAMEEN</a>
+                                                                </div>
+                                                                <div class="mt-1 text-sm text-gray-700">
+                                                                    <p>
+                                                                        @note.NOTE
+                                                                    </p>
+                                                                </div>
+                                                                <div class="mt-2 text-sm space-x-2">
+                                                                    <span class="text-gray-500 font-medium">@note.LASTUPDATE?.ToString("yyyy-MM-dd hh:mm")</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="w-full px-2 py-2 overflow-hidden">
+                            <section aria-labelledby="notes-title">
+                                <div class="bg-white shadow sm:rounded-lg sm:overflow-hidden">
+                                    <div class="divide-y divide-gray-200">
+                                        <div class="px-4 py-5 sm:px-6 bg-[#658494]">
+                                            <h2 id="notes-title" class="text-lg font-medium text-white">
+                                                Notes
+                                            </h2>
+                                        </div>
+                                        <div class="px-4 py-6 sm:px-6">
+                                            <ul role="list" class="space-y-8 divide-y divide-gray-200">
+
+                                                <li>
+                                                    <div class="flex space-x-3">
+                                                        <div class="flex-shrink-0">
+                                                            <img class="h-10 w-10 rounded-full" src="~/images/user.png" alt="" />
+                                                        </div>
+                                                        <div>
+                                                            <div class="text-sm">
+
+                                                            </div>
+                                                            <div class="mt-1 text-sm text-gray-700">
+                                                                <p>
+                                                                    No record found
+                                                                </p>
+                                                            </div>
+                                                            <div class="mt-2 text-sm space-x-2">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    }
+                }
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("alpine:init", () => {
+            Alpine.data("pagedata", () => ({}));
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,83 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+@model string
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@(Html.DevExtreme().Popup()
+        .ID("training-applied-popup")
+        //.Width(400)
+        .Height(470)
+        .ShowCloseButton(true)
+          .ShowTitle(true)
+        .Title(SharedLocalizer["ApplyTraining"])
+    .RtlEnabled(CultureHelper.IsRighToLeft())
+    .ShowCloseButton(true)
+    .ContentTemplate(new TemplateName("apply-training-popup-template"))
+)
+
+@using (Html.DevExtreme().NamedTemplate("apply-training-popup-template"))
+{
+
+
+    @(Html.DevExtreme().ScrollView()
+        .Width("100%")
+        .Height("100%")
+        .Content(@<text>
+<div class="columns" >
+    <div class="column" >
+         @SharedLocalizer["JobseekerName"]
+
+    </div>
+    <div class="column is-three-fifths">
+       <input type="hidden" id="jobseeker_Id" />
+        <span id="training-jobseeker-name"></span>
+    </div>
+    <div class="column">
+          @(Html.DevExtreme().Button()
+            .RtlEnabled(CultureHelper.IsRighToLeft())
+            .ElementAttr("class", "button-new")
+            .ID("apply_trainingbatch_button").Disabled(true)
+            .Text(SharedLocalizer["ApplyTraining"])
+            .OnClick("DevAV.employees.postTraining")
+
+        )
+    </div>
+</div>
+
+ @(Html.DevExtreme().DataGrid<ResumeBuilder.Dto.TrainingBatchDto>()
+            .ID("apply-training-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+
+             .Paging(paging => paging.PageSize(5))
+    .Pager(pager => pager
+        .ShowNavigationButtons(true).ShowPageSizeSelector(true)
+        .ShowInfo(true).AllowedPageSizes(new[] { 5, 10, 20, 100 }).ShowInfo(true)
+    )
+     .FilterRow(fr => fr.Visible(true))
+
+            .Selection(s => s.Mode(SelectionMode.Multiple).AllowSelectAll(false).ShowCheckBoxesMode(GridSelectionShowCheckBoxesMode.Always)
+            .SelectAllMode(SelectAllMode.AllPages))
+            .Columns(columns => {
+                columns.AddFor(m => m.Title);
+                columns.AddFor(m => m.StartDateTime).Caption(SharedLocalizer["StartDateTime"]);
+                columns.AddFor(m => m.EndDateTime).Caption(SharedLocalizer["EndDateTime"]);
+                columns.AddFor(m => m.Is_AlReadyEnrol).Caption(SharedLocalizer["AppliedStatus"]);
+
+            }).DataSource(d => d.Mvc().Controller("Training").LoadAction("GetTrainingBatchsByIsEnrol").Key("ID").LoadParams(new { resume_ID = new JS("getJobSeekerId") , IsAlreadyEnroll = false }))
+            .OnSelectionChanged("DevAV.employees.SelectedTraining"))
+<div class="columns" >
+    <div class="column" >
+        <span class="caption">Selected Trainings:</span>
+        <span id="selectedItemsContainer">No Training has been selected</span>
+    </div>
+</div>
+
+
+
+        </text>)
+    )
+}

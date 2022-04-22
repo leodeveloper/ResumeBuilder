@@ -1,0 +1,129 @@
+﻿@page
+@model ResumeBuilder.Pages.previewJobSeekerModel
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@{
+    Layout = null;
+    ViewData["Title"] = "HRA-ADERP Perview";
+}
+<!DOCTYPE html>
+<html  lang="@CultureHelper.GetCurrentCulture()" dir="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")" class="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta NAME="AUTHOR" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="DESCRIPTION" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="KEYWORDS" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="ROBOTS" CONTENT="INDEX,NOFOLLOW">
+    <title>@ViewData["Title"]</title>
+    <link href="~/images/favicon.png" rel="shortcut icon">
+
+    <link href="//fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet" crossorigin="anonymous" />
+    @*<link rel="stylesheet" href="~/lib/bulma/bulma.min.css" />*@
+    <link rel="stylesheet" href="~/lib/bulma/bulma-rtl.css" />
+    <link href="~/lib/animate/animate.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+    <link href="~/lib/bulma/toastr.css" rel="stylesheet" crossorigin="anonymous" />
+</head>
+
+<body>
+    <header>
+        <div class="columns is-fixed-top">
+            <div class="column is-1 leftmenu">
+                <div class="level-left">
+                    <div class="level-item">
+                        <img src="~/images/logo.png" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section class="section">
+        @if (Model.resume.status == Models.APIStatus.success)
+        {
+            if (Model.resume.data != null)
+            {
+                var _resume = Model.resume.data;
+                <div class="container">
+                    <table class="table is-fullwidth is-striped">
+                        <tr>
+                            <th>@SharedLocalizer["booknumber"]</th>
+                            <th></th>
+                            <th>@SharedLocalizer["Historyofthebook"]</th>
+                            <th></th>
+                            <th>@SharedLocalizer["Incomingrequest"]</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <td rowspan="5"><img src="/images/user.png" width="250" height="350" /></td>
+                        </tr>
+                        <tr>
+                            <td>@SharedLocalizer["NamePre"]</td>
+                            <td>@_resume.Resume.FirstNameAr @_resume.Resume.LastNameAr</td>
+                            <td>@SharedLocalizer["Academicqualification/specialty"]</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>@SharedLocalizer["Dateofbirth"]</td>
+                            <td>
+                                @if (_resume.Resume.DOB.HasValue)
+                                {
+                                    @_resume.Resume.DOB.Value.ToString("yyyy-MM-dd")
+                                }
+                            </td>
+                            <td>@SharedLocalizer["IDNumber"]</td>
+                            <td>@_resume.Resume.JobSeekerId</td>
+                        </tr>
+                        <tr>
+                            <td>@SharedLocalizer["MobilePhone"]</td>
+                            <td>@_resume.Resume.MobilePhone</td>
+                            <td>@SharedLocalizer["YearsofExperience"]</td>
+                            <td>@_resume.TotalExperience</td>
+                        </tr>
+                        <tr>
+                            <td>@SharedLocalizer["CityRegion"]</td>
+                            <td></td>
+                            <td>@SharedLocalizer["Previousemployers"]</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th colspan="4">@SharedLocalizer["Requirementsspecifiedbythejobseeker"]</th>
+                        </tr>
+                        <tr>
+                            <th>@SharedLocalizer["Workplace"]</th>
+                            <th>@SharedLocalizer["EmployerPre"]</th>
+                            <th>@SharedLocalizer["Salary"]</th>
+                            <th>@SharedLocalizer["Other"]</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">@SharedLocalizer["Nominations"]</th>
+                        </tr>
+                        <tr>
+                            <th>@SharedLocalizer["EntityName"]</th>
+                            <th>@SharedLocalizer["NominationDate"]</th>
+                            <th>@SharedLocalizer["Lastreminderdate"]</th>
+                            <th>@SharedLocalizer["Vacancytype"]</th>
+                            <th>@SharedLocalizer["Filterprocedure"]</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            }
+        }
+    </section>
+
+</body>
+</html>

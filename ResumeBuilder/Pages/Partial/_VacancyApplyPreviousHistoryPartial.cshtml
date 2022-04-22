@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+@model string
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@(Html.DevExtreme().Popup()
+        .ID("vacancy-applied-popup-previous-history")
+        //.Width(400)
+        .Height(470)
+        .ShowCloseButton(true)
+          .ShowTitle(true)
+        .Title(SharedLocalizer["ApplyVacancyPreviousHistory"])
+    .RtlEnabled(CultureHelper.IsRighToLeft())
+    .ShowCloseButton(true)
+    .ContentTemplate(new TemplateName("apply-vacancy-popup-template-previous-history"))
+)
+
+@using (Html.DevExtreme().NamedTemplate("apply-vacancy-popup-template-previous-history"))
+{
+
+
+    @(Html.DevExtreme().ScrollView()
+        .Width("100%")
+        .Height("100%")
+        .Content(@<text>
+<div class="columns" >
+    <div class="column" >
+         @SharedLocalizer["JobseekerName"]
+
+    </div>
+     <div class="column is-three-fifths">
+       <input type="hidden" id="jobseeker_Id" />
+        <span id="vacancy-jobseeker-name"></span>
+    </div>
+</div>
+
+<h4 class="title is-4">@SharedLocalizer["AppliedVacancy"]</h4>
+
+
+ @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.Vacancy>()
+            .ID("applied-vacancy-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+             .ShowBorders(true)
+
+             .Paging(paging => paging.PageSize(5))
+    .Pager(pager => pager
+        .ShowNavigationButtons(true).ShowPageSizeSelector(true)
+        .ShowInfo(true).AllowedPageSizes(new[] { 5, 10, 20, 100 })
+    )
+     .FilterRow(fr => fr.Visible(true))
+            .Columns(columns => {
+
+                columns.AddFor(m => m.AutoGenerateJobCode).Caption(SharedLocalizer["JobCode"]);
+                columns.AddFor(m => m.EnTitle).Caption(SharedLocalizer["Title"]);
+                columns.AddFor(m => m.EmployerId).Caption(SharedLocalizer["Employer"])
+               .Lookup(lookup => lookup.DataSource(ds => ds.Mvc().Controller("lookup").LoadAction("GetActiveCompaniesLookup").Key("Id").LoadMode(DataSourceLoadMode.Raw)).ValueExpr("Id").DisplayExpr(Model));
+                columns.AddFor(m => m.AppliedVacancyStatus);
+            }).DataSource(d => d.Mvc().Controller("Vacancy").LoadAction("GetAppliedVacancies").Key("AutoGenerateJobCode").LoadParams(new { jobSeekerId = new JS("getJobSeekerId") }))
+            )
+
+        </text>)
+    )
+}

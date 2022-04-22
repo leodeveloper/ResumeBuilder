@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
+        .ToList();
+}
+
+@if (ResumeBuilder.Helper.CultureHelper.IsRighToLeft())
+{
+    <form id="englishLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="form-horizontal" role="form" asp-page-handler="SetLanguage">
+        <input type="hidden" name="culture" value="en-US" />
+        <button type="submit" class="-ml-2 h-5 w-5 pl-4 pr-4">@SharedLocalizer["Language"]</button>
+    </form>
+}
+else
+{
+    <form id="arabicLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="form-horizontal " role="form" asp-page-handler="SetLanguage">
+        <input type="hidden" name="culture" value="ar-AE" />
+        <button type="submit" class="-ml-2 h-5 w-5 pl-4 pr-4">@SharedLocalizer["Language"]</button>
+    </form>
+} 

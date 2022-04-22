@@ -1,0 +1,117 @@
+﻿@page
+@model ResumeBuilder.Pages.ShowAssessmentReportModel
+@using ResumeBuilder.Models
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@inject IViewLocalizer Localizer
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/js/jquery.table2excel.min.js"></script>
+<div class="flex-1 flex items-stretch overflow-hidden" x-data="pagedata">
+
+    <!-- Right Secondary column (hidden on smaller screens) -->
+    <aside class="relative hidden w-full bg-white border-l border-gray-200 overflow-y-auto lg:block h-screen ">
+
+        <div class="absolute flex-auto z-0 overflow-y-auto focus:outline-none xl:order-last "
+             x-show="!isloading && selectedindex > 0"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 transform scale-90"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <!-- Breadcrumb -->
+            <nav class="flex items-start px-4 py-3 sm:px-6 lg:px-8 xl:hidden" aria-label="Breadcrumb">
+                <a href="#" class="inline-flex items-center space-x-3 text-sm font-medium text-gray-900">
+                    <!-- Heroicon name: solid/chevron-left -->
+                    <svg class="-ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Jobseekers</span>
+                </a>
+            </nav>
+            <!-- Profile header -->
+            <div>
+                <div>
+                    <img class="h-32 w-full object-cover lg:h-48" src="~/images/profileheader.jpg" alt="">
+                </div>
+                <div class="-mt-12 sm:-mt-16 max-w-1xl mx-auto px-1 sm:px-1 lg:px-1">
+                    <div class="sm:flex sm:items-start sm:space-x-5 mt-2">                       
+                        <div class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6">
+                            <div class=" 2xl:block mt-10 min-w-0 flex-1">
+                                <h1 class="text-2xl font-bold text-gray-900 truncate">
+                                    @SharedLocalizer["Assessments"]
+                                </h1><br />
+                                <button type="button" onclick="fnExcelReport('reportAssessment');" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                                    <!-- Heroicon name: solid/mail -->
+                                    <svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 20" fill="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                    <span>@SharedLocalizer["Export"]</span>
+                                </button>                              
+                                @if (Model.Questions.status == APIStatus.success)
+                                {
+                            <div class="hidden w-30 bg-primary overflow-y-auto md:block">
+                                <table class="w-5 border" id="reportAssessment">
+                                    <tr class="bg-gray-50 border-b">
+                                        <td class="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">JobSeekerId</td>
+                                        <td class="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">EmiratesId</td>
+                                        @foreach (var question in Model.Questions.data.Questions)
+                                        {
+                                            <td class="p-2 border-r cursor-pointer text-sm font-thin text-gray-500">@question.QuestionSmallName</td>
+                                        }
+                                    </tr>
+                                    @foreach (var answers in Model.Questions.data.UserAnswers)
+                                    {
+                                        <tr class="bg-gray-100 text-center border-b text-sm text-gray-600">
+                                            <td class="p-2 border-r">
+                                                @{
+                                                    var jobseeker = Model.Resume.data.FirstOrDefault(f => f.Rid.ToString() == answers.AssessmentUserID);
+                                                }
+                                                @jobseeker.JobSeekerId
+                                            </td>
+                                            <td class="p-2 border-r">
+                                                @jobseeker.EmiratesId
+                                            </td>
+                                            @foreach (var userAnswers in answers.AssessmentQuestionAnswers)
+                                            {
+
+                                                <td class="p-2 border-r">@userAnswers.Answer</td>
+                                            }
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                                    
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+
+@*https://datatables.net/extensions/buttons/examples/html5/simple.html
+    https://stackoverflow.com/questions/22317951/export-html-table-data-to-excel-using-javascript-jquery-is-not-working-properl*@
+
+<script>
+    function fnExcelReport(tableName) {
+        $('#' + tableName).table2excel({
+            exclude: ".noExl",
+            name: "Excel Document Name",
+            filename: tableName + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
+            fileext: ".xls",
+            exclude_img: true,
+            exclude_links: true,
+            exclude_inputs: true,
+            preserveColors: false
+        });
+    }
+</script>
+
+
+

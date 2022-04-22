@@ -1,0 +1,296 @@
+﻿@page
+@model ResumeBuilder.Pages.ShowAssessmentModel
+@using ResumeBuilder.Models
+@using FormFactory
+@using FormFactory.Attributes
+@using FormFactory.Components
+@using FormFactory.AspMvc
+@using FormFactory.UnobtrusiveValidation;
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@inject IViewLocalizer Localizer
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+
+<div class="flex-1 flex items-stretch overflow-hidden" x-data="pagedata">
+
+    <!-- Right Secondary column (hidden on smaller screens) -->
+    <aside class="relative hidden w-full bg-white border-l border-gray-200 overflow-y-auto lg:block h-screen ">
+
+        <div class="absolute flex-auto z-0 overflow-y-auto focus:outline-none xl:order-last "
+             x-show="!isloading && selectedindex > 0"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 transform scale-90"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <!-- Breadcrumb -->
+            <nav class="flex items-start px-4 py-3 sm:px-6 lg:px-8 xl:hidden" aria-label="Breadcrumb">
+                <a href="#" class="inline-flex items-center space-x-3 text-sm font-medium text-gray-900">
+                    <!-- Heroicon name: solid/chevron-left -->
+                    <svg class="-ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Jobseekers</span>
+                </a>
+            </nav>
+            <!-- Profile header -->
+            <div>
+                <div>
+                    <img class="h-32 w-full object-cover lg:h-48" src="~/images/profileheader.jpg" alt="">
+                </div>
+                <div class="-mt-12 sm:-mt-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="sm:flex sm:items-start sm:space-x-5 mt-2">
+                        <div class="flex">
+                            <img class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32" src="~/images/user.png" alt="">
+                        </div>
+                        <div class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6">
+                            <div class=" 2xl:block mt-10 min-w-0 flex-1">
+                                <h1 class="text-2xl font-bold text-gray-900 truncate">
+                                    @SharedLocalizer["Assessments"]
+                                </h1><br />
+                                <article id="saveanswermessage" class="message is-hidden">
+                                    <div class="message-body">
+                                    </div>
+                                </article>
+
+                                <form id="myform">
+                                    @{ if (Model.QuestionAnswers.status == APIStatus.success && Model.QuestionAnswers.data != null && Model.QuestionAnswers != null)
+                                        {
+                                            IList<PropertyVm> propertyVms = new List<PropertyVm>();
+                                            foreach (var questions in Model.QuestionAnswers.data)
+                                            {
+                                                foreach(var question in questions.QuestionResultViewModels)
+                                                {
+
+                                                    string questionAnswerValue = string.Empty;
+                                                    if(question.AnswerResultViewModels.FirstOrDefault() != null)
+                                                    {
+                                                        questionAnswerValue = question.AnswerResultViewModels.FirstOrDefault().Answer;
+                                                    }
+                                                    PropertyVm propertyVm = new PropertyVm();
+                                                    if (question.DataTypeID == 1)
+                                                    {
+                                                        propertyVm = new PropertyVm(typeof(string), question.QuestionId.ToString())
+                                                        //Textbox
+                                                        {
+
+                                                            DisplayName = CultureHelper.IsRighToLeft() ? question.QuestionAr : question.Question,
+                                                            Value = questionAnswerValue,
+                                                            NotOptional = false//question.IsMandatory,
+                                                            // GetCustomAttributes = () => new Object[] { new ModelClientValidationRequiredRule("This is required"), new RequiredAttribute(), new StringLengthAttribute(2).FormatErrorMessage(question.ID.ToString()) }
+                                                        };
+                                                    }
+                                                    else if (question.DataTypeID == 2)
+                                                    {
+                                                        //Radiobutton
+                                                        string _answerChocies = question.AnswerChoices ?? "";
+                                                        string _answerChociesAr = question.AnswerChoicesAr ?? "";
+
+                                                        propertyVm = new PropertyVm(typeof(string), question.QuestionId.ToString())
+                                                        {
+                                                            DisplayName = CultureHelper.IsRighToLeft() ? question.QuestionAr : question.Question,
+                                                            NotOptional = false,//question.IsMandatory    
+                                                            Value = questionAnswerValue,
+                                                            Choices = CultureHelper.IsRighToLeft() ? _answerChociesAr.Split(',') : _answerChocies.Split(','), //new List<String>// () { "OSX", "IOS", "Windows", "Android" },// Value = "Windows", //Preselect windows
+                                                            GetCustomAttributes = () => new object[] { new RadioAttribute(), new System.ComponentModel.DescriptionAttribute("Make a choice above.") }
+                                                        };
+                                                    }
+                                                    else if (question.DataTypeID == 3)
+                                                    {
+                                                        //Checkbox
+                                                        propertyVm = new PropertyVm(typeof(bool), question.QuestionId.ToString())
+                                                        {
+                                                            DisplayName = CultureHelper.IsRighToLeft() ? question.QuestionAr : question.Question,
+                                                            NotOptional = false,// question.IsMandatory,
+                                                          //  Value = false, //Preselect false (unchecked)
+                                                            Value = questionAnswerValue,
+                                                            GetCustomAttributes = () => new object[] { new FormFactory.Attributes.LabelOnRightAttribute() } // right label
+                                                        };
+                                                    }
+                                                    else if (question.DataTypeID == 4)
+                                                    {
+
+                                                        //  RegularExpressionAttribute rg = new RegularExpressionAttribute("^(([0-9])|([0-2][0-9])|([3][0-1]))\\ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\ \\d{4}$");
+                                                        //   rg.FriendlyFormat = "Invalid date, DD MMM YYYY";
+                                                        //Date
+                                                        propertyVm = new PropertyVm(typeof(DateTime), question.QuestionId.ToString())
+                                                        {
+                                                            Id = "datepicker",
+                                                            DisplayName = CultureHelper.IsRighToLeft() ? question.QuestionAr : question.Question,
+                                                            NotOptional = false,//question.IsMandatory,
+                                                            Value = questionAnswerValue,
+                                                            GetCustomAttributes = () => new object[] { new DateAttribute() }
+                                                            //  GetCustomAttributes = () => new object[] { new DateAttribute(), new RequiredAttribute(), rg }
+                                                        };
+                                                    }
+                                                    else if (question.DataTypeID == 5)
+                                                    {
+                                                        //Date
+                                                        propertyVm = new PropertyVm(typeof(DateTime), question.QuestionId.ToString())
+                                                        {
+                                                            Id = "datepicker",
+
+                                                            DisplayName = CultureHelper.IsRighToLeft() ? question.QuestionAr : question.Question,
+                                                            NotOptional = false,// question.IsMandatory,
+                                                            Value = questionAnswerValue,
+                                                            GetCustomAttributes = () => new object[] { new DateTimeAttribute() }
+                                                        };
+                                                    }
+                                                    else if (question.DataTypeID == 6)
+                                                    {
+                                                        //DropDown                                                   
+                                                        string _answerChocies = question.AnswerChoices ?? "";
+                                                        string _answerChociesAr = question.AnswerChoicesAr ?? "";
+                                                        propertyVm = new PropertyVm(typeof(string), question.QuestionId.ToString())
+                                                        {
+                                                            DisplayName = CultureHelper.IsRighToLeft() ? question.QuestionAr : question.Question,
+                                                            NotOptional = false,// question.IsMandatory,
+                                                            Value = questionAnswerValue,
+                                                            Choices = CultureHelper.IsRighToLeft() ? _answerChociesAr.Split(',') : _answerChocies.Split(','), //new List<String>// () { "OSX", "IOS", "Windows", "Android" },// Value = "Windows", //Preselect windows
+                                                                                                                                                              // GetCustomAttributes = () => new object[] { new RadioAttribute(), new System.ComponentModel.DescriptionAttribute("Make a choice above.") }
+                                                        };
+                                                    }
+
+                                                    propertyVms.Add(propertyVm);
+                                                }
+                                            }
+
+                                            //Do not change the name/id of this propperty
+                                            PropertyVm propertyVmhidden = new PropertyVm(typeof(string), "jobSeekerId")
+                                            {
+                                                Id = "jobSeekerId",
+                                                IsHidden = true,
+                                                Value = Model.JobSeekerId,
+
+                                                GetCustomAttributes = () => new object[] { new HiddenInputAttribute() }
+                                            };
+
+                                            propertyVms.Add(propertyVmhidden);
+                                            <br />
+                                           
+                                            @propertyVms.Render(Html);
+
+                                        }
+                                    }
+                                   
+                                   <br />
+                                            <input  id="form-submit" type="button" onclick="submitform()" value="@SharedLocalizer["SaveAssessment"]" class="flex bg-gray-600 p-1 rounded-full items-center justify-center text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" />
+                                        <br /><br /><br />
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+<div id="dialog-confirm" title="@SharedLocalizer["AssessmentSave"]">
+    <p>
+        @SharedLocalizer["AssessmentSave"]
+    </p>
+</div>
+
+<link href="~/lib/jquery/themes/base/jquery-ui.css" rel="stylesheet" />
+<script src="~/lib/jquery/dist/jquery-ui.js"></script>
+<link href="~/lib/jqueryui-timepicker-addon/dist/jquery-ui-timepicker-addon.css" rel="stylesheet" />
+<script src="~/lib/jqueryui-timepicker-addon/dist/jquery-ui-timepicker-addon.js"></script>
+<link href="~/FormFactory/FormFactory.css" rel="stylesheet" />
+<script src="~/FormFactory/FormFactory.js"></script>
+@section Scripts{
+
+
+    <script>
+        function submitform() {
+            $('#saveanswermessage').addClass('is-hidden');          
+            
+            if ($('#myform').validate().checkForm()) {
+
+                var formData = $('#myform').serializeArray();
+
+              //  console.log(formData);
+                $.ajax({
+                    type: "POST",
+                    url: "api/Assessment/SaveAssessmentAnswers/@Model.TemplateId",
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                }).done(function (data) {
+                   // console.log(data);
+
+                    if (data.data === false) {
+                        $('#saveanswermessage').addClass('is-danger').removeClass('is-hidden');
+                        $('.message-body').html('@SharedLocalizer["AssessmentSaveError"]');
+
+                    }
+                    else {
+                        $('#saveanswermessage').addClass('is-success').removeClass('is-hidden');
+                        $('.message-body').html('@SharedLocalizer["AssessmentSave"]');
+                        $("#dialog-confirm").dialog("open");
+                      
+                    }
+
+                });
+            }
+            else {
+                $("#myform").submit();
+                console.log("form validation failed");
+            }
+        }
+
+        $(document).ready(function () {
+            $('.form-group').addClass('field').removeClass('form-group');
+            $('.field').addClass('py-4');//.removeClass('form-group');
+            $('.radio').addClass('py-2 px-2');
+            $('.control-label').addClass('whitespace-nowrap py-4 px-1 text-lg font-bold').removeClass('control-label');
+            $('.form-control').addClass('shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline').removeClass('form-control');
+            $('.help-block').addClass('text-red-500 text-xs text-color-Error').removeClass('help-block');
+
+           
+            var dateToday = new Date();
+            var yrRange = (dateToday.getFullYear()-90) + ":" + dateToday.getFullYear();
+            $.datepicker.setDefaults({
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                yearRange: yrRange,
+               // maxDate: dateToday,
+               // minDate: ''
+            });           
+            //Dailog box
+            $("#dialog-confirm").dialog({
+                autoOpen: false,
+                height: "auto",
+                width: 400,
+                buttons: {
+                    "Close": function () {
+                        $(this).dialog("close");
+                        window.top.close();
+                    }
+                },
+                open: function (event, ui) { $(".ui-dialog-titlebar-close").hide(); }
+            });
+            //End
+        });
+        $(document).on('focus', ':input', function () {
+            $(this).attr('autocomplete', 'off');
+        });
+       
+
+      
+
+    </script>
+}
+
+<style>
+    .text-color-Error {
+        color:red;
+    }
+    .labelPadding {
+        font-weight: bold !important;
+        margin-bottom: 10px !important;
+    }
+</style>
+
+

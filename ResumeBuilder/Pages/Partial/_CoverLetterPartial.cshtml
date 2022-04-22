@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@(Html.DevExtreme().Popup()
+        .ID("coverLetter-popup")
+        //.Width(400)
+        .Height(470)
+        .ShowCloseButton(true)
+          .ShowTitle(true)
+        .Title(SharedLocalizer["CoverLetter"])
+    .RtlEnabled(CultureHelper.IsRighToLeft())
+    .ShowCloseButton(true)
+    .ContentTemplate(new TemplateName("apply-coverLetter-popup-template"))
+)
+
+@using (Html.DevExtreme().NamedTemplate("apply-coverLetter-popup-template"))
+{
+    @(Html.DevExtreme().ScrollView()
+        .Width("100%")
+        .Height("100%")
+        .Content(@<text>
+ <div class="columns">
+                                    <div class="column">
+                                        @using (Html.BeginForm("JobSeekerCoverLetter", "Resume", FormMethod.Post, new { id = "jobSeekerCoverLetter" }))
+                                        {
+                                            @(Html.DevExtreme().Form<ResumeBuilder.Models.JobSeekerCoverLetter>()
+                 .ID("jobSeekerCoverLetter-form").RtlEnabled(CultureHelper.IsRighToLeft())
+                            .ShowColonAfterLabel(false)
+                            .ShowValidationSummary(true)
+                            .LabelLocation(FormLabelLocation.Left)
+                            .ScrollingEnabled(true)
+            .ShowValidationSummary(true)
+            .Items(items => {
+                items.AddGroup()                    
+                    .Items(groupItems => {
+                        groupItems.AddSimpleFor(m=>m.CoverLetter).Label(l => l.Text(SharedLocalizer["CoverLetter"]).Alignment(HorizontalAlignment.Left))
+                        .Editor(e=>e.TextArea().MaxLength(500));
+
+                        groupItems.AddSimpleFor(m => m.Accomplishments).Label(l => l.Text(SharedLocalizer["Accomplishments"]).Alignment(HorizontalAlignment.Left))
+                        .Editor(e => e.TextArea().MaxLength(500));
+
+                    });
+            }))
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="columns">
+                                    <div class="column">
+                                        @(Html.DevExtreme().Button()
+                        .Text(SharedLocalizer["Save"])
+                        .Width(90).UseSubmitBehavior(false)
+                        .OnClick("DevAV.employees.saveCoverLetter")
+                )
+                                    </div>
+                                </div>
+</text>)
+)
+}
+
+
+

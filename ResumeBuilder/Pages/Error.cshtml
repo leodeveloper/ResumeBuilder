@@ -1,0 +1,56 @@
+﻿@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<h3>Development Mode</h3>
+<p>
+    Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.
+</p>
+<p>
+    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
+    It can result in displaying sensitive information from exceptions to end users.
+    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
+    and restarting the app.
+</p>
+
+<div>
+    <div>
+        <img class="h-32 w-full object-cover lg:h-48" src="~/images/profileheader.jpg" alt="">
+    </div>
+    <div class="-mt-12 sm:-mt-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="sm:flex sm:items-start sm:space-x-5 mt-2">
+            <div class="flex">
+                <img class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32" src="~/images/user.png" alt="">
+            </div>
+            <div class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6">
+                <div class=" 2xl:block mt-10 min-w-0 flex-1">
+                    <h1 class="text-2xl font-bold text-gray-900 truncate">
+                        unauthorized access denied
+                    </h1><br />
+                    <a href="@Model.samlloginurl" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                        <!-- Heroicon name: solid/mail -->
+                        <svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+
+                        <span>
+                            Click here for login
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

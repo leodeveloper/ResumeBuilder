@@ -1,0 +1,401 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@(Html.DevExtreme().Popup()
+        .ID("resumelistfilter-popup")
+        .Width("50%")
+       // .Height(470)
+        .ShowCloseButton(true)
+          .ShowTitle(true)
+        .Title(SharedLocalizer["FilterResume"])
+    .RtlEnabled(CultureHelper.IsRighToLeft())
+    .ShowCloseButton(true)
+    .ContentTemplate(new TemplateName("resumelist-popup-template"))
+)
+
+@using (Html.DevExtreme().NamedTemplate("resumelist-popup-template"))
+{
+    @(Html.DevExtreme().ScrollView()
+        .Width("100%")
+        //.Height("100%")
+        .Content(@<text>
+<div class="colums" >
+    <div class="column" >
+
+          <span>@SharedLocalizer["CommaSepratedSearch"]</span>
+        @(
+            Html.DevExtreme().TextBox().ID("filterCommaSperatedValues").RtlEnabled(CultureHelper.IsRighToLeft())
+        )
+
+         <span>@SharedLocalizer["EmiratesID"]</span>
+        @(Html.DevExtreme().DropDownBox().ID("filteremiratesId")
+                //  .Value(new[] { 3 })
+                .ValueExpr("Id").RtlEnabled(CultureHelper.IsRighToLeft())
+                .DisplayExpr(CultureHelper.IsRighToLeft() ? "Value" : "Value")
+                .DataSource(d => d.Mvc()
+                    .Controller("JobSeekerResumes")
+                    .LoadAction("GetAllEmiratesIds")
+                    .LoadMode(DataSourceLoadMode.Raw)
+                    .Key("Id")
+                )
+                .Placeholder("")
+                .ShowClearButton(true)
+
+                  .ShowClearButton(true)
+
+                .OnValueChanged("gridBox_valueChanged_emiratesid")
+                .ContentTemplate(new TemplateName("EmbeddedDataGridEmiratesId"))
+            )
+
+         <span>@SharedLocalizer["JobSeekerId"]</span>
+        @(Html.DevExtreme().DropDownBox().ID("filterjobSeekerId")
+                //  .Value(new[] { 3 })
+                .ValueExpr("Id").RtlEnabled(CultureHelper.IsRighToLeft())
+                .DisplayExpr(CultureHelper.IsRighToLeft() ? "Value" : "Value")
+                .DataSource(d => d.Mvc()
+                    .Controller("JobSeekerResumes")
+                    .LoadAction("GetAllJobSeekerIds")
+                    .LoadMode(DataSourceLoadMode.Raw)
+                    .Key("Id")
+                )
+                .Placeholder("")
+                .ShowClearButton(true)
+
+                  .ShowClearButton(true)
+
+                .OnValueChanged("gridBox_valueChanged_jobSeekerId")
+                .ContentTemplate(new TemplateName("EmbeddedDataGridJobSeekerId"))
+            )
+
+         <span>@SharedLocalizer["Status"]</span>
+        @(Html.DevExtreme().DropDownBox().ID("statusId")
+                //  .Value(new[] { 3 })
+                .ValueExpr("Rid").RtlEnabled(CultureHelper.IsRighToLeft())
+                .DisplayExpr(CultureHelper.IsRighToLeft() ? "TitleAr" : "Title")
+                .DataSource(d => d.Mvc()
+                    .Controller("lookup")
+                    .LoadAction("GetResumeStatus")
+                    .LoadMode(DataSourceLoadMode.Raw)
+                    .Key("Rid")
+                )
+                .Placeholder("")
+                .ShowClearButton(true)
+
+                  .ShowClearButton(true)
+
+                //  .NoDataText(SharedLocalizer["NoDataText"]) // لا يوجد بيانات
+                //  .ClearButtonText(SharedLocalizer["ClearButtonText"]) // مسح الاختيار
+                //   .CancelButtonText(SharedLocalizer["CancelButtonText"]) // إلغاء
+                //    .Placeholder("")
+
+                .OnValueChanged("gridBox_valueChanged")
+                .ContentTemplate(new TemplateName("EmbeddedDataGridMultiple"))
+            )
+
+          <span>@SharedLocalizer["Location"]</span>
+
+           @(Html.DevExtreme().Lookup().ID("locationId")
+                    .RtlEnabled(CultureHelper.IsRighToLeft())
+                    .SearchEnabled(true)
+                    .SearchMode(DropDownSearchMode.Contains)
+                    .SearchExpr(CultureHelper.IsRighToLeft() ? "ArTitle" : "EnTitle")
+                    .SearchTimeout(200)
+                    .MinSearchLength(0)
+                    .DataSource( d => d.Mvc()
+                        .Controller("lookup").LoadAction("GetLocation").Key("Id").LoadMode(DataSourceLoadMode.Raw)
+                    )
+                    .ValueExpr("Id").DisplayExpr(CultureHelper.IsRighToLeft()? "ArTitle" : "EnTitle")
+                    .Width(250)
+                     .DropDownOptions(p => p.CloseOnOutsideClick(true).ShowTitle(false))
+                    .ShowClearButton(true)
+
+                    .NoDataText(SharedLocalizer["NoDataText"]) // لا يوجد بيانات
+                    .ClearButtonText(SharedLocalizer["ClearButtonText"]) // مسح الاختيار
+                    .CancelButtonText(SharedLocalizer["CancelButtonText"]) // إلغاء
+                    .Placeholder("")
+                    .SearchPlaceholder(SharedLocalizer["Search"])
+                    )
+         <span>@SharedLocalizer["EducationGroupId"]</span>
+
+                    @(Html.DevExtreme().Lookup().ID("educationGroupId")
+                    .RtlEnabled(CultureHelper.IsRighToLeft()).OnValueChanged("onValueChanged")
+                    .DataSource( d => d.Mvc()
+                        .Controller("lookup").LoadAction("GetEducationGroup").Key("Id").LoadMode(DataSourceLoadMode.Raw)
+                    ).SearchEnabled(true)
+                    .ValueExpr("Id").DisplayExpr(CultureHelper.IsRighToLeft()? "ArName" : "EnName")
+                    .Width(250)
+                    .DropDownOptions(p => p.CloseOnOutsideClick(true).ShowTitle(false))
+                    .ShowClearButton(true)
+
+                    .NoDataText(SharedLocalizer["NoDataText"]) // لا يوجد بيانات
+                    .ClearButtonText(SharedLocalizer["ClearButtonText"]) // مسح الاختيار
+                    .CancelButtonText(SharedLocalizer["CancelButtonText"]) // إلغاء
+                    .Placeholder("")
+                    .SearchPlaceholder(SharedLocalizer["Search"])
+                    )
+
+         <span>@SharedLocalizer["EducationTypeId"]</span>
+
+                    @(Html.DevExtreme().Lookup().ID("educationTypeId")
+                    .RtlEnabled(CultureHelper.IsRighToLeft()).OnValueChanged("onValueChangedEducationType")//.DataSource("get_EducationType")
+                    .DataSource( d => d.Mvc()
+                        .Controller("lookup").LoadAction("GetEducationTypeByGroupID").LoadParams(new { groupID = new JS("getEducationGroupId") }).Key("Id").LoadMode(DataSourceLoadMode.Raw)
+                    ).SearchEnabled(true)
+                    .ValueExpr("Id").DisplayExpr(CultureHelper.IsRighToLeft()? "ArName" : "EnName")
+                    .Width(250)
+                    .DropDownOptions(p => p.CloseOnOutsideClick(true).ShowTitle(false))
+                    .ShowClearButton(true)
+
+                    .NoDataText(SharedLocalizer["NoDataText"]) // لا يوجد بيانات
+                    .ClearButtonText(SharedLocalizer["ClearButtonText"]) // مسح الاختيار
+                    .CancelButtonText(SharedLocalizer["CancelButtonText"]) // إلغاء
+                    .Placeholder("")
+                    .SearchPlaceholder(SharedLocalizer["Search"])
+                    )
+        <span>@SharedLocalizer["EducationMajorId"]</span>
+
+                    @(Html.DevExtreme().Lookup().ID("educationMajorId")
+                    .RtlEnabled(CultureHelper.IsRighToLeft())//.DataSource("get_EducationType")
+                    .DataSource( d => d.Mvc()
+                        .Controller("lookup").LoadAction("GetEducationMajorByGroupIDandTypeId").LoadParams(new { groupID = new JS("getEducationGroupId"), typeID = new  JS("getEducationTypeId") }).Key("Id").LoadMode(DataSourceLoadMode.Raw)
+                    ).SearchEnabled(true)
+                    .ValueExpr("Id").DisplayExpr(CultureHelper.IsRighToLeft()? "ArName" : "EnName")
+                    .Width(250)
+                    .DropDownOptions(p => p.CloseOnOutsideClick(true).ShowTitle(false))
+                    .ShowClearButton(true)
+
+                    .NoDataText(SharedLocalizer["NoDataText"]) // لا يوجد بيانات
+                    .ClearButtonText(SharedLocalizer["ClearButtonText"]) // مسح الاختيار
+                    .CancelButtonText(SharedLocalizer["CancelButtonText"]) // إلغاء
+                    .Placeholder("")
+                    .SearchPlaceholder(SharedLocalizer["Search"])
+                    )
+    </div>
+
+</div>
+<br /><br />
+<table>
+    <tr>
+        <td> @(Html.DevExtreme().Button()
+        .RtlEnabled(CultureHelper.IsRighToLeft())
+        .Text(SharedLocalizer["Refresh"])
+        .Icon("refresh")
+        .Type(ButtonType.Normal)
+        .OnClick("reloaddata"))</td>
+        <td>
+            @(Html.DevExtreme().Button()
+        .RtlEnabled(CultureHelper.IsRighToLeft())
+        .Text(SharedLocalizer["Clear"])
+        .Icon("close")
+        .Type(ButtonType.Normal)
+        .OnClick("clearfilterSearch"))
+        </td>
+    </tr>
+</table>
+
+
+</text>)
+)
+}
+
+@using (Html.DevExtreme().NamedTemplate("EmbeddedDataGridMultiple"))
+{
+    @(Html.DevExtreme().DataGrid()
+        .ID("embedded-datagrid").RtlEnabled(CultureHelper.IsRighToLeft())
+        .DataSource(new JS(@"component.getDataSource()"))
+        .Columns(columns => {
+            if(CultureHelper.IsRighToLeft())
+                columns.Add().Caption(SharedLocalizer["Status"]).DataField("TitleAr");
+            else
+                columns.Add().Caption(SharedLocalizer["Status"]).DataField("Title");
+
+        })
+        .HoverStateEnabled(true)
+        .Paging(p => p.PageSize(10))
+        .FilterRow(f => f.Visible(true))
+        .Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+        .Height(345)
+        .Selection(s => s.Mode(SelectionMode.Multiple).AllowSelectAll(false))
+        .SelectedRowKeys(new JS(@"component.option(""value"")"))
+        .OnSelectionChanged(@<text>
+            function(selectedItems) {
+                var keys = selectedItems.selectedRowKeys;
+                component.option("value", keys);
+            }
+        </text>)
+    )
+}
+
+@using (Html.DevExtreme().NamedTemplate("EmbeddedDataGridEmiratesId"))
+{
+    @(Html.DevExtreme().DataGrid()
+        .ID("embedded-datagrid-emiratesid").RtlEnabled(CultureHelper.IsRighToLeft())
+        .DataSource(new JS(@"component.getDataSource()"))
+        .Columns(columns => {
+             columns.Add().Caption(SharedLocalizer["EmiratesId"]).DataField("Value");
+
+        })
+        .HoverStateEnabled(true)
+        .Paging(p => p.PageSize(10))
+        .FilterRow(f => f.Visible(true))
+        //.Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+        .Height(345)
+        .Selection(s => s.Mode(SelectionMode.Multiple).SelectAllMode(SelectAllMode.Page))
+        .SelectedRowKeys(new JS(@"component.option(""value"")"))
+        .OnSelectionChanged(@<text>
+            function(selectedItems) {
+                var keys = selectedItems.selectedRowKeys;
+                component.option("value", keys);
+            }
+        </text>)
+    )
+}
+
+
+@using (Html.DevExtreme().NamedTemplate("EmbeddedDataGridJobSeekerId"))
+{
+    @(Html.DevExtreme().DataGrid()
+        .ID("embedded-datagrid-jobseekerid").RtlEnabled(CultureHelper.IsRighToLeft())
+        .DataSource(new JS(@"component.getDataSource()"))
+        .Columns(columns => {
+             columns.Add().Caption(SharedLocalizer["JobSeekerId"]).DataField("Value");
+        })
+      //  .HoverStateEnabled(true)
+        .Paging(p => p.PageSize(10))
+        .FilterRow(f => f.Visible(true))
+        //.Scrolling(s => s.Mode(GridScrollingMode.Virtual))
+        .Height(345)
+        .Selection(s => s.Mode(SelectionMode.Multiple).SelectAllMode(SelectAllMode.Page))
+        .SelectedRowKeys(new JS(@"component.option(""value"")"))
+        .OnSelectionChanged(@<text>
+            function(selectedItems) {
+                var keys = selectedItems.selectedRowKeys;
+                component.option("value", keys);
+            }
+        </text>)
+    )
+}
+
+<script>
+    function getLocationId() {
+        let getInstance = $("#locationId").dxLookup("instance");
+        if (getInstance) {
+            return getInstance.option("value");
+        }
+    }
+
+    function getStatusId() {
+        let getInstance = $("#statusId").dxDropDownBox("instance");
+        if (getInstance) {
+            let selectedStatusId = getInstance.option("value");
+            if (selectedStatusId)
+                return selectedStatusId.join();
+        }
+    }
+
+    function getfilterEmiratesId() {
+        let getInstance = $("#filteremiratesId").dxDropDownBox("instance");
+        if (getInstance) {
+            let selectedEmiratesId = getInstance.option("value");
+            if (selectedEmiratesId)
+                return selectedEmiratesId.join();
+        }
+    }
+
+    function getfilterjobSeekerId() {
+        let getInstance = $("#filterjobSeekerId").dxDropDownBox("instance");
+        if (getInstance) {
+            let selectedJobSeekerId = getInstance.option("value");
+            if (selectedJobSeekerId)
+                return selectedJobSeekerId.join();
+        }
+    }
+
+
+
+    function getEducationGroupId() {
+        let getInstance = $("#educationGroupId").dxLookup("instance");
+        if (getInstance) {
+            return getInstance.option("value");
+        }
+    }
+
+    function getEducationTypeId() {
+        let getInstance = $("#educationTypeId").dxLookup("instance");
+        if (getInstance) {
+            return getInstance.option("value");
+        }
+    }
+
+    function getEducationMajorId() {
+        let getInstance = $("#educationMajorId").dxLookup("instance");
+        if (getInstance) {
+            return getInstance.option("value");
+        }
+    }
+
+    function getCommaSepratedFilter() {
+        let getInstance = $("#filterCommaSperatedValues").dxTextBox("instance");
+        if (getInstance) {
+            return getInstance.option("value");
+        }
+    }
+
+    function reloaddata() {
+        $("#grid").dxDataGrid("refresh");
+        DevAV.employees.hideResumeFilterPopup();
+    }
+    function clearfilterSearch() {
+        getStatusId();
+        $("#locationId").dxLookup("instance").option("value", "");
+        $("#educationGroupId").dxLookup("instance").option("value", "");
+        $("#educationTypeId").dxLookup("instance").option("value", "");
+        $("#educationMajorId").dxLookup("instance").option("value", "");
+        $("#statusId").dxDropDownBox("instance").option("value", "");
+        $("#filteremiratesId").dxDropDownBox("instance").option("value", "");
+        $("#filterjobSeekerId").dxDropDownBox("instance").option("value", "");
+        $("#filterCommaSperatedValues").dxTextBox("instance").option("value", "");
+        reloaddata();
+    }
+
+    function onValueChanged(e) {
+        $("#educationTypeId").dxLookup("instance").getDataSource().reload();
+    }
+    function onValueChangedEducationType(e) {
+        $("#educationMajorId").dxLookup("instance").getDataSource().reload();
+    }
+
+    function gridBox_valueChanged(e) {
+        let $dataGrid = $("#embedded-datagrid");
+
+        if ($dataGrid.length) {
+            let dataGrid = $dataGrid.dxDataGrid("instance");
+            dataGrid.selectRows(e.value, false);
+        }
+    }
+
+    function gridBox_valueChanged_emiratesid(e) {
+        let $dataGridEmiratsId = $("#embedded-datagrid-emiratesid");
+        if ($dataGridEmiratsId.length) {
+            let dataGridEmiratsId = $dataGridEmiratsId.dxDataGrid("instance");
+            dataGridEmiratsId.selectRows(e.value, false);
+        }
+    }
+
+    function gridBox_valueChanged_jobSeekerId(e) {
+        let $dataGridJobSeekerId = $("#embedded-datagrid-jobseekerid");
+        if ($dataGridJobSeekerId.length) {
+            let dataGridJobSeekerId = $dataGridJobSeekerId.dxDataGrid("instance");
+            dataGridJobSeekerId.selectRows(e.value, false);
+        }
+    }
+
+
+
+</script>

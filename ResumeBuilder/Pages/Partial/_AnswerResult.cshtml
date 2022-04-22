@@ -1,0 +1,164 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+
+<div class="colums">
+    <div class="column">
+        @(Html.DevExtreme().TabPanel().Loop(true).ScrollingEnabled(true).ScrollByContent(true)
+         .ID("answerresultreporttabPanel").RtlEnabled(CultureHelper.IsRighToLeft())
+        .Items(items => {
+            items.Add()
+                    .Title(SharedLocalizer["ThrivingIndex"])
+                    .Template(new TemplateName("ThrivingIndex"));
+            items.Add()
+                   .Title(SharedLocalizer["CognitiveAbility"])
+                   .Template(new TemplateName("CognitiveAbility"));
+            items.Add()
+                 .Title(SharedLocalizer["AgileVerbify"])
+                 .Template(new TemplateName("AgileVerbify"));
+            items.Add()
+                  .Title(SharedLocalizer["MicrosoftOffice"])
+                  .Template(new TemplateName("MicrosoftOffice"));
+            items.Add()
+                 .Title(SharedLocalizer["Top5Careers"])
+                 .Template(new TemplateName("Top5Careers"));
+            
+        })
+        //.OnItemClick("DevAV.employees.tabItemRendered").OnItemRendered("DevAV.employees.tabItemRendered").OnItemClick("DevAV.employees.tabItemRendered")
+        .SelectedIndex(0)
+                    .Loop(false)
+                    .AnimationEnabled(false)
+                    .SwipeEnabled(true)
+                    .ItemTitleTemplate(@<text><span>[%= title %]</span></text>)
+
+                   )
+
+        @using (Html.DevExtreme().NamedTemplate("ThrivingIndex"))
+        {
+            @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.AnswerResults>()
+              .ID("answer-result-report-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+                   .ShowBorders(true).OnCellPrepared("cell_prepared_report_answer")
+                    .ShowRowLines(true)
+                    .RowAlternationEnabled(true)
+                  .Paging(paging => paging.Enabled(false))
+                  .Columns(columns =>
+                  {
+                      columns.AddFor(m => m.Thriving_Index_Confidence).Caption(SharedLocalizer["Confidence"]);
+                      columns.AddFor(m => m.Thriving_Index_Optimism).Caption(SharedLocalizer["Optimism"]);
+                      columns.AddFor(m => m.Thriving_Index_Growth_Mindset).Caption(SharedLocalizer["GrowthMindset"]);
+                      columns.AddFor(m => m.Thriving_Index_Achievement).Caption(SharedLocalizer["Achievement"]);
+                      columns.AddFor(m => m.Thriving_Index_Grit).Caption(SharedLocalizer["Grit"]);
+                      columns.AddFor(m => m.Thriving_Index_Resilience).Caption(SharedLocalizer["Resilience"]);
+                      columns.AddFor(m => m.Thriving_Index_Overall).Caption(SharedLocalizer["Overall"]);
+
+                  })
+                  .DataSource(d => d.Mvc().Controller("Assessment").LoadAction("GetAnswerResultsReport").LoadParams(new { emiratesID = new JS("getEmiratesId")})
+                  .Key("Id")))
+        }
+        @using (Html.DevExtreme().NamedTemplate("CognitiveAbility"))
+        {
+            @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.AnswerResults>()
+                  .ID("answer-result-report-grid1").RtlEnabled(CultureHelper.IsRighToLeft())
+                   .ShowBorders(true).OnCellPrepared("cell_prepared_report_answer")
+                    .ShowRowLines(true)
+                    .RowAlternationEnabled(true)
+                  .Paging(paging => paging.Enabled(false))
+                  .Columns(columns =>
+                  {
+                      columns.AddFor(m => m.Cognitive_Ability_Reasonify).Caption(SharedLocalizer["Reasonify"]);
+                      columns.AddFor(m => m.Cognitive_Ability_Detectify).Caption(SharedLocalizer["Detectify"]);
+                      columns.AddFor(m => m.Cognitive_Ability_Numerify).Caption(SharedLocalizer["Numerify"]);
+                      columns.AddFor(m => m.Cognitive_Ability_Agile_Overall).Caption(SharedLocalizer["Overall"]);
+                  })
+                  .DataSource(d => d.Mvc().Controller("Assessment").LoadAction("GetAnswerResultsReport").LoadParams(new { emiratesID = new JS("getEmiratesId")})
+                  .Key("Id")))
+        }
+        @using (Html.DevExtreme().NamedTemplate("AgileVerbify"))
+        {
+            @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.AnswerResults>()
+                  .ID("answer-result-report-grid2").RtlEnabled(CultureHelper.IsRighToLeft())
+                   .ShowBorders(true).OnCellPrepared("cell_prepared_report_answer")
+                    .ShowRowLines(true)
+                    .RowAlternationEnabled(true)
+                  .Paging(paging => paging.Enabled(false))
+                  .Columns(columns =>
+                  {
+                      columns.AddFor(m => m.Agile_Verbify_English_Assessment).Caption(SharedLocalizer["EnglishAssessment"]);
+                  })
+                  .DataSource(d => d.Mvc().Controller("Assessment").LoadAction("GetAnswerResultsReport").LoadParams(new { emiratesID = new JS("getEmiratesId")})
+                  .Key("Id")))
+        }
+        @using (Html.DevExtreme().NamedTemplate("MicrosoftOffice"))
+        {
+            @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.AnswerResults>()
+                  .ID("answer-result-report-grid3").RtlEnabled(CultureHelper.IsRighToLeft())
+                   .ShowBorders(true).OnCellPrepared("cell_prepared_report_answer")
+                    .ShowRowLines(true).AllowColumnResizing(true)
+                    .RowAlternationEnabled(true)
+                  .Paging(paging => paging.Enabled(false))
+                  .Columns(columns =>
+                  {
+                      columns.AddFor(m => m.Microsoft_Office_Excel).Caption(SharedLocalizer["Excel"]);
+                      columns.AddFor(m => m.Microsoft_Office_Outlook).Caption(SharedLocalizer["OutLook"]);
+                      columns.AddFor(m => m.Microsoft_Office_PowerPoint).Caption(SharedLocalizer["PowerPoint"]);
+                      columns.AddFor(m => m.Microsoft_Office_Word).Caption(SharedLocalizer["Word"]);
+                      columns.AddFor(m => m.Microsoft_Office_Overall).Caption(SharedLocalizer["Overall"]);
+                      columns.AddFor(m => m.Overall_Score_Per_Candidate).Caption(SharedLocalizer["OverallScorePerCandidate"]);
+                      columns.AddFor(m => m.Overall_Rating_Matrix_Grid).Caption(SharedLocalizer["OverallRating"]).Width(300);
+
+                  })
+                  .DataSource(d => d.Mvc().Controller("Assessment").LoadAction("GetAnswerResultsReport").LoadParams(new { emiratesID = new JS("getEmiratesId")})
+                  .Key("Id")))
+        }
+
+        @using (Html.DevExtreme().NamedTemplate("Top5Careers"))
+        {
+            @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.AnswerResults>()
+                  .ID("answer-result-report-grid4").RtlEnabled(CultureHelper.IsRighToLeft())
+                   .ShowBorders(true).OnCellPrepared("cell_prepared_report_answer")
+                    .ShowRowLines(true).AllowColumnResizing(true)
+                    .RowAlternationEnabled(true)
+                  .Paging(paging => paging.Enabled(false)).WordWrapEnabled(false)
+                  .Columns(columns =>
+                  {
+                      columns.AddFor(m => m.Career_Top_01).Caption(SharedLocalizer["Top1"]);
+                      columns.AddFor(m => m.Career_Stars_01).Caption(SharedLocalizer["Star"]);
+                      columns.AddFor(m => m.Career_Top_02).Caption(SharedLocalizer["Top2"]);
+                      columns.AddFor(m => m.Career_Stars_02).Caption(SharedLocalizer["Star"]);
+                      columns.AddFor(m => m.Career_Top_03).Caption(SharedLocalizer["Top3"]);
+                      columns.AddFor(m => m.Career_Stars_03).Caption(SharedLocalizer["Star"]);
+                      columns.AddFor(m => m.Career_Top_04).Caption(SharedLocalizer["Top4"]);
+                      columns.AddFor(m => m.Career_Stars_04).Caption(SharedLocalizer["Star"]);
+                      columns.AddFor(m => m.Career_Top_05).Caption(SharedLocalizer["Top5"]);
+                      columns.AddFor(m => m.Career_Stars_05).Caption(SharedLocalizer["Star"]);
+                  })
+                  .DataSource(d => d.Mvc().Controller("Assessment").LoadAction("GetAnswerResultsReport").LoadParams(new { emiratesID = new JS("getEmiratesId")})
+                  .Key("Id")))
+        }
+
+    </div>
+</div>
+<script>
+    function cell_prepared_report_answer(options) { 
+        
+        if (options.rowType === "data" && !isNaN(options.value)) {
+            var fieldData = options.value, fieldHtml = "<div class='flex space-x-1 text-yellow-500' title='" + options.value +"'>";
+            var loopcount = 5;
+            for (var i = 0; i < loopcount; i++) {
+                if (fieldData > i)
+                    fieldHtml += "<svg class='w-6 h-6' fill='#F59E0B' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'></path></svg>";
+                else
+                    fieldHtml += "<svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'></path></svg>";
+            }
+
+            fieldHtml += "</div>";
+            options.cellElement.html(fieldHtml);
+        }       
+    }
+</script>

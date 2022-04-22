@@ -1,0 +1,309 @@
+﻿@page
+@model ResumeBuilder.Pages.previewModel
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@{
+    Layout = null;
+    ViewData["Title"] = "HRA-ADERP Preview";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta NAME="AUTHOR" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="DESCRIPTION" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="KEYWORDS" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="ROBOTS" CONTENT="INDEX,NOFOLLOW">
+    <title>@ViewData["Title"]</title>
+    <link href="~/images/favicon.png" rel="shortcut icon">
+
+    <link href="//fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet" crossorigin="anonymous" />
+    <link rel="stylesheet" href="~/lib/bulma/bulma.min.css" />
+    <link rel="stylesheet" href="~/lib/bulma/bulma-rtl.css" />
+    <link href="~/lib/animate/animate.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+    <link href="~/lib/bulma/toastr.css" rel="stylesheet" crossorigin="anonymous" />
+
+    <style>
+        th {
+            text-align: left;
+            
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <div class="columns is-fixed-top">
+            <div class="column is-1 leftmenu">
+                <div class="level-left">
+                    <div class="level-item">
+                        <img src="~/images/logo.png" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section class="section">
+        <div class="container">
+            <nav class="level">
+                <!-- Left side -->
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title">Curriculum Vitae</h1>
+                    </div>
+                </div>
+                <!-- Right side -->
+                <div class="level-right">
+
+                </div>
+            </nav>
+        </div>
+    </section>
+    <div class="columns">
+        <div class="column is-full">
+
+            @if (Model.resume.status == Models.APIStatus.success)
+            {
+                if (Model.resume.data != null)
+                {
+                    var _resume = Model.resume.data;
+
+            <div class="container">
+                <nav class="level">
+                    <!-- Left side -->
+                    <div class="level-left">
+                        <div class="level-item">
+                            @SharedLocalizer["JobSeekerId"] @_resume.Resume.JobSeekerId
+                        </div>
+                    </div>
+                    <!-- Right side -->
+                    <div class="level-right">
+
+                    </div>
+                </nav>
+                <table class="table is-fullwidth is-striped">
+                    <tr>
+                        <td colspan="2">Personal Details</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>@_resume.OtherJobSeekerInfo.Salutation @_resume.Resume.FirstName @_resume.Resume.LastName</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Date of Birth</td>
+                        <td>
+                            @if (_resume.Resume.DOB.HasValue)
+                            {
+                                @_resume.Resume.DOB.Value.ToString("yyyy-MM-dd")                               
+                            }
+                        </td>
+                        <td>Age</td>
+                        <td>
+                            @if (_resume.Resume.DOB.HasValue)
+                            {
+                                @_resume.Age
+                            }
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Address</td>
+                        <td>@_resume.Resume.Address</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Emirates</td>
+                        <td>@_resume.OtherJobSeekerInfo.Emirates</td>
+                        <td>City</td>
+                        <td>@_resume.OtherJobSeekerInfo.City</td>
+                    </tr>
+                    <tr>
+                      
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td>@_resume.OtherJobSeekerInfo.Location</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td>Mobile</td>
+                        <td>@_resume.Resume.MobilePhone</td>
+                        <td>LandLine</td>
+                        <td>@_resume.Resume.LandLine</td>
+                    </tr>
+                    <tr>
+                      
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>@_resume.Resume.EmailId</td>
+                        <td>Twitter</td>
+                        <td>@_resume.Resume.Twitter</td>
+                    </tr>
+                    <tr>
+                      
+                    </tr>
+                    <tr>
+                        <td>LinkedIn</td>
+                        <td>@_resume.Resume.Linkedin</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+                </table>
+
+                <table class="table is-fullwidth is-striped">
+                    <tr><td colspan="10" ><b>Education</b></td></tr>
+                    <tr>
+                        <td><b>Group</b></td>
+                        <td><b>Type</b></td>
+                        <td><b>Major</b></td>
+                        <td><b>Course</b></td>
+                        <td><b>University Type</b></td>
+                        <td><b>University</b></td>
+                        <td><b>Emirate</b></td>
+                        <td><b>Institue</b></td>
+                        <td><b>Grade</b></td>
+                        <td><b>Graducation Date</b></td>
+                    </tr>
+                    @foreach (var education in Model.resume.data.EducationDtos)
+                    {
+                <tr>
+                    <td>@education.Education_Group</td>
+                    <td>@education.Education_Type</td>
+                    <td>@education.Education_Major</td>
+                    <td>@education.Course</td>
+                    <td>@education.University_Type</td>
+                    <td>@education.University</td>
+                    <td>@education.Education_Emirates</td>
+                    <td>@education.Education.Institute</td>
+                    <td>@education.Education.Grade</td>
+                    <td>@education.Education.ToYear?.ToShortDateString()</td>
+                </tr>
+                    }
+
+                </table>
+                <table class="table is-fullwidth is-striped">
+                    <tr><td colspan="6" ><b>Experience</b></td></tr>
+
+                    <tr>
+                        <td><b>Employer Name</b></td>
+                        <td><b>Particular</b></td>
+                        <td><b>Designation</b></td>
+                        <td><b>Department</b></td>
+                        <td><b>Start Date</b></td>
+                        <td><b>End Date</b></td>
+                    </tr>
+                    @foreach (var employer in Model.resume.data.EmployerDtos)
+                    {
+                <tr>
+                    <td>@employer.EmployerName</td>
+                    <td>@employer.Particular</td>
+                    <td>@employer.Designation</td>
+                    <td>@employer.Employer.Department</td>
+                    <td>@employer.Employer.FromDate?.ToString("yyyy-MM-dd")</td>
+                    <td>@employer.Employer.ToDate?.ToString("yyyy-MM-dd")</td>
+                </tr>
+                    }
+
+                </table>
+                <table class="table is-fullwidth is-striped">
+                    <tr><td colspan="5" ><b>Certification</b></td></tr>
+                    <tr>
+                        <td><b>Certification </b></td>
+                        <td><b>From Date</b></td>
+                        <td><b>To Date</b></td>
+                        <td><b>Score</b></td>
+                        <td><b>Institute</b></td>
+                    </tr>
+                    @foreach (var certificate in Model.resume.data.CertificateDtos)
+                    {
+                <tr>
+                    <td>@certificate.CertificationName</td>
+                    <td>
+                        @if (certificate.FromDate.HasValue)
+                        {
+                            @certificate.FromDate.Value.ToString("yyyy-MM-dd")
+
+                        }
+                    </td><td>
+                            @if (certificate.ToDate.HasValue)
+                            {
+                                @certificate.ToDate.Value.ToString("yyyy-MM-dd")
+
+                            }
+                        </td>
+                        <td>@certificate.Score</td>
+                        <td>@certificate.Institute</td>
+                    </tr>
+                    }
+
+                </table>
+                <table class="table is-fullwidth is-striped">
+                    <tr><td colspan="2" ><b>Skills</b></td></tr>
+                    <tr>
+                        <td><b>Skill</b></td>
+                        <td><b>Occupation</b></td>
+                    </tr>
+                    @foreach (var skillOccupation in Model.resume.data.SkillOccupationDto)
+                    {
+                        <tr>
+                            <td>@skillOccupation.SkillGroup</td>
+                            <td>@skillOccupation.Occupation</td>
+                        </tr>
+                    }
+
+                </table>
+
+                <table class="table is-fullwidth is-striped">
+                    <tr><td><b>Tools Knowledge</b></td></tr>
+                    @foreach (var toolsKnowledgeDto in Model.resume.data.ToolsKnowledgeDto)
+                    {
+                        <tr>
+                            <td>@toolsKnowledgeDto.EnTitle</td>
+                        </tr>
+                    }
+
+                </table>
+
+                <table class="table is-fullwidth is-striped">
+
+                    <tr>
+                        <td><b>Military Service Batch</b></td>
+                        <td><b>Military Service From Date</b></td>
+                        <td><b>Military Service To Date</b></td>                        
+                    </tr>
+                    <tr>
+                        <td>@_resume.Resume.MilitaryServiceBatch</td>                       
+                        <td>
+                            @if (_resume.Resume.MilitaryServiceFromDate.HasValue)
+                            {
+                                @_resume.Resume.MilitaryServiceFromDate.Value.ToString("yyyy-MM-dd")
+                            }
+                        </td>
+                        <td>
+                            @if (_resume.Resume.MilitaryServiceToDate.HasValue)
+                            {
+                                @_resume.Resume.MilitaryServiceToDate.Value.ToString("yyyy-MM-dd")
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+                }
+            }
+        </div>
+    </div>
+</body>
+</html>

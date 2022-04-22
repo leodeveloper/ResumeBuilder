@@ -1,0 +1,92 @@
+﻿
+@using Microsoft.AspNetCore.Identity
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+<!DOCTYPE html>
+
+<html  class="has-navbar-fixed-top" lang="@CultureHelper.GetCurrentCulture()" dir="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")" class="@(CultureHelper.IsRighToLeft() ? "rtl" : "ltr")">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta NAME="AUTHOR" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="DESCRIPTION" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="KEYWORDS" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="ROBOTS" CONTENT="INDEX,NOFOLLOW">
+
+    <title>@ViewData["Title"] - ResumeBuilder</title>
+    <link href="~/images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+    <link rel="stylesheet" href="~/lib/bulma/bulma.min.css" />
+    <link rel="stylesheet" href="~/lib/bulma/bulma-rtl.css" />
+    <link href="~/lib/animate/animate.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />   
+   
+    <link href="~/bundle.min.css" rel="stylesheet" />
+    <script src="~/bundle.min.js"></script>
+
+  
+
+</head>
+<body>
+
+    <header>
+        @*<nav class="navbar is-light level is-fixed-top " role="navigation" aria-label="main navigation">*@
+        <div class="columns">
+            <div class="column is-1">
+                <div class="level-left">
+                    <div class="level-item">
+                        <img src="~/images/logo.png" />
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <!-- Left side -->
+                <!-- Right side -->
+                <div class="level-right">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="navbar-end">
+                            <div class="navbar-item">
+                                <div class="buttons">
+                                    <a class="button is-primary">
+                                        <strong>@User.Identity.Name!</strong>
+                                    </a>
+                                    <a class="button is-light" asp-page="/Logout">
+                                        @SharedLocalizer["LogOut"]
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @await Html.PartialAsync("Partial/_ChangeLanguagePartial")
+                </div>
+            </div>
+        </div>
+        @*</nav>*@
+
+    </header>
+    <div class="columns is-gapless">
+        <div class="column"></div>
+        <div class="column is-10">
+            @RenderBody()
+        </div>
+        <div class="column"></div>
+    </div>
+    @*<div>
+        <nav class="navbar is-fixed-bottom is-light footer">
+            <div class="navbar-brand ">
+                <div class="navbar-item is-size-7">&copy; @DateTime.Now.Year, @SharedLocalizer["Copyright"]</div>
+                <a target="_blank" href="https://www.facebook.com/abudhabihra" class="facebook"></a>
+                <a target="_blank" href="https://twitter.com/abudhabihra?lang=ae" class="twitter"></a>
+                <a target="_blank" href="https://www.instagram.com/abudhabihra/" class="insta"></a>
+                <a target="_blank" href="https://www.youtube.com/channel/UCC95tVygrj2Rrfs_ypo9q0w" class="youtube"></a>
+                <a target="_blank" href="https://www.linkedin.com/company/human-resources-authority" class="linked"></a>
+            </div>
+        </nav>
+    </div>*@      
+      
+ 
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

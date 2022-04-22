@@ -1,0 +1,61 @@
+﻿@page
+@model ResumeBuilder.Pages.unauthorizeModel
+@{
+}
+
+<div class="flex-1 flex items-stretch overflow-hidden" x-data="pagedata">  
+
+    <!-- Right Secondary column (hidden on smaller screens) -->
+    <aside class="relative hidden w-full bg-white border-l border-gray-200 overflow-y-auto lg:block h-screen ">
+
+        <div class="absolute flex-auto z-0 overflow-y-auto focus:outline-none xl:order-last "
+             x-show="!isloading && selectedindex > 0"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 transform scale-90"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <!-- Breadcrumb -->
+            <nav class="flex items-start px-4 py-3 sm:px-6 lg:px-8 xl:hidden" aria-label="Breadcrumb">
+                <a href="#" class="inline-flex items-center space-x-3 text-sm font-medium text-gray-900">
+                    <!-- Heroicon name: solid/chevron-left -->
+                    <svg class="-ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Jobseekers</span>
+                </a>
+            </nav>
+            <!-- Profile header -->
+            <div>
+                <div>
+                    <img class="h-32 w-full object-cover lg:h-48" src="~/images/profileheader.jpg" alt="">
+                </div>
+                <div class="-mt-12 sm:-mt-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="sm:flex sm:items-start sm:space-x-5 mt-2">
+                        <div class="flex">
+                            <img class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32" src="~/images/user.png" alt="">
+                        </div>
+                        <div class="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6">
+                            <div class=" 2xl:block mt-10 min-w-0 flex-1">
+                                <h1 class="text-2xl font-bold text-gray-900 truncate">
+                                    unauthorized access denied
+                                </h1><br />
+                                <a href="@Model.samlloginurl" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                                    <!-- Heroicon name: solid/mail -->
+                                    <svg class="-ml-1 mr-2 h-5 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                    
+                                    <span>                                    
+                                    Click here for login                                    
+                                    </span>
+                                </a>
+                            </div>                            
+                        </div>                       
+                    </div>                    
+                </div>
+            </div>            
+        </div>
+    </aside>
+</div>

@@ -1,0 +1,133 @@
+﻿@page
+@model LoginModel
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@{
+    Layout = null;
+    ViewData["Title"] = "HRA-ADERP Login";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta NAME="AUTHOR" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="DESCRIPTION" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="KEYWORDS" CONTENT="HRA,Human Resources Authority,HRA,ADERP,Aditya,HR">
+    <meta NAME="ROBOTS" CONTENT="INDEX,NOFOLLOW">
+    <title>@ViewData["Title"]</title>
+    <link href="~/images/favicon.png" rel="shortcut icon">
+    <environment include="Development">
+        @*<link rel="stylesheet" href="~/lib/bulma/bulma.min.css" />
+            <link rel="stylesheet" href="~/lib/animate/animate.css" />
+            <link rel="stylesheet" href="~/css/site.css" />
+            <script defer src="//use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+                 <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" crossorigin="anonymous" />*@
+        <link href="//fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet" crossorigin="anonymous" />
+        <link rel="stylesheet" href="~/lib/bulma/bulma.min.css" />
+        <link rel="stylesheet" href="~/lib/bulma/bulma-rtl.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+        <link href="~/lib/bulma/toastr.css" rel="stylesheet" crossorigin="anonymous" />
+
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css"
+              asp-fallback-href="~/lib/bulma/bulma.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css"
+              asp-fallback-href="~/lib/animate/animate.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/logincss.css" asp-append-version="true" />
+        <script defer src="//use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+        <link href="//fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet" crossorigin="anonymous" />
+        <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" crossorigin="anonymous" />
+    </environment>
+
+</head>
+<body class="">
+    <div class="section-wrapper">
+        <div class="container has-text-centered mt4">
+            <div class="column is-4 is-offset-4">
+                <h3 class="title has-text-grey">Login</h3>
+                <p class="subtitle has-text-grey">Enter your credentials to proceed</p>
+                <div class="box mt5 pa4">
+                    <figure class="avatar">
+                        <img src="~/images/logo.png" />
+                    </figure>
+                    <form method="post" class="tl" id="loginform">
+                        @Html.AntiForgeryToken()
+                        <span class="label has-text-danger">
+                            @Html.ValidationMessage("invalidcredentials")
+                        </span>
+                        <div class="field">
+                            <label class="label">@Html.DisplayNameFor(model => model.login.username)</label>
+                            <div class="control">
+                                <input type="text" name="username" class="input" placeholder="Enter your username" id="username" />
+                            </div>
+                        </div>
+                        <div class="field mt3">
+                            <label class="label">@Html.DisplayNameFor(model => model.login.password)</label>
+                            <div class="control">
+                                <input type="password" name="password" class="input" placeholder="Enter your password" id="password" />
+                            </div>
+                        </div>
+                        <input class="button is-block is-dark is-medium is-fullwidth mt4" type="submit" value="Login" id="login" /><br />
+
+                        @*<a href="ForgotPassword">Forgot Password</a>*@
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <div>
+            <nav class="navbar is-fixed-bottom is-light">
+                <div class="navbar-brand">
+                    <div class="navbar-item is-size-7">&copy; @DateTime.Now.Year, @SharedLocalizer["Copyright"]</div>
+                    <a class="navbar-item" target="_blank" href="https://www.facebook.com/abudhabihra">
+                        <i class="fab fa-facebook fa-lg"></i>
+                    </a>
+                    <a class="navbar-item" target="_blank" href="https://twitter.com/abudhabihra?lang=ae">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                    <a class="navbar-item" target="_blank" href="https://www.instagram.com/abudhabihra/">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    <a class="navbar-item" target="_blank" href="https://www.youtube.com/channel/UCC95tVygrj2Rrfs_ypo9q0w">
+                        <i class="fab fa-youtube fa-lg"></i>
+                    </a>
+                    <a class="navbar-item" target="_blank" href="https://www.linkedin.com/company/human-resources-authority">
+                        <i class="fab fa-linkedin fa-lg"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+
+    </div>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/common.js" asp-append-version="true"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/common.js" asp-append-version="true"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    </environment>
+</body>
+
+
+
+
+</html>
+

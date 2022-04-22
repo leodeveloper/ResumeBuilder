@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+@{
+    string dropdownTextStatus = "EnTitle";
+    if (CultureHelper.IsRighToLeft())
+    {
+        dropdownTextStatus = "ArTitle";
+
+    }
+}
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IStringLocalizer<ResumeBuilder.SharedResource> SharedLocalizer
+@(Html.DevExtreme().TabPanel().Loop(true).ScrollingEnabled(true).ScrollByContent(true)
+         .ID("jobSeekerGrievencetabPanel").RtlEnabled(CultureHelper.IsRighToLeft())
+        .Items(items => {
+            //items.Add()
+            //        .Title(SharedLocalizer["Appeal"])
+            //        .Template(new TemplateName("Appeal"));
+
+        })
+        .SelectedIndex(0)
+                    .Loop(false)
+                    .AnimationEnabled(false)
+                    .SwipeEnabled(true)
+                    .ItemTitleTemplate(@<text><span>[%= title %]</span></text>)
+
+                   )
+@using (Html.DevExtreme().NamedTemplate("Appeal"))
+{
+    @(Html.DevExtreme().DataGrid<ResumeBuilder.Models.JobSeekerGrieveance>()
+                  .ID("jobseekergrieveance-grid").RtlEnabled(CultureHelper.IsRighToLeft())
+                       .ShowBorders(true)
+                        .ShowRowLines(true)
+                        .RowAlternationEnabled(true)
+                      .Paging(paging => paging.Enabled(false))
+                      .Editing(editing =>
+                      {
+                          editing.Mode(GridEditMode.Popup);
+                          editing.AllowAdding(false);                          
+                          editing.Form(z => z.ShowRequiredMark(true).ShowValidationSummary(true));
+                          editing.Texts(t => t.SaveRowChanges(SharedLocalizer["Save"])
+                .CancelRowChanges(SharedLocalizer["Cancel"])
+                .ConfirmDeleteTitle(SharedLocalizer["Delete"])
+                .ConfirmDeleteMessage(SharedLocalizer["ConfirmDeleteMessage"]));
+                      })
+                       .RemoteOperations(true)
+                .OnInitNewRow("onInitNewRowAttachmentForJobseekerGrivences")
+                      .Columns(columns =>
+                      {
+                      columns.AddFor(m => m.Resumeid).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Visible(false);
+                      columns.AddFor(m => m.Ticketno).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Caption(SharedLocalizer["TicketNo"]);
+                      columns.AddFor(m => m.Comment).Caption(SharedLocalizer["Comment"]);
+
+                      columns.AddFor(m => m.FileName).Visible(false).Caption(SharedLocalizer["FileName"]).EditCellTemplate(@<text>
+    @(Html.DevExtreme().FileUploader()
+                                  .ElementAttr(new JS("{'data-id': data.Rid }"))
+                                  .ID("fileUploader").ReadyToUploadMessage(SharedLocalizer["FileisReadytoUpload"]).UploadFailedMessage(SharedLocalizer["UploadFail"]).SelectButtonText(SharedLocalizer["SelectFile"]).UploadButtonText(SharedLocalizer["Upload"]).UploadedMessage(SharedLocalizer["UploadSuccess"])
+                                  .Name("myFile")
+                                  .Multiple(false)
+                                  .Accept("image/jpeg,image/gif,image/png,application/pdf,application/doc,application/docx,image/x-eps")
+                                  .UploadMode(FileUploadMode.Instantly).UploadFile("uploadFile")
+                                  .OnValueChanged("function(e) { fileUploader_valueChanged(e, setValue); }")
+    //  .UploadUrl(Url.Action("UploadFile", "Home"))
+    //   .OnValueChanged("fileUploader_valueChanged")
+    )</text>);
+                      columns.AddFor(m => m.Status).AllowEditing(false).FormItem(formItem => { formItem.Visible(false); }).Caption(SharedLocalizer["Status"]).Lookup(lookup => lookup
+                              .DataSource(d => d.Mvc().Controller("lookup").LoadAction("GetJobSeekerGrieveanceStatus").LoadMode(DataSourceLoadMode.Raw))
+                              .DisplayExpr(dropdownTextStatus).ValueExpr("Id"));
+                      columns.AddFor(m => m.MongoDBUniqueId).FormItem(formItem => { formItem.Visible(false); }).AllowEditing(false).Caption(@SharedLocalizer["DownloadFile"]).CellTemplate(@<text><a  target="_blank" href="api/Resume/GetFile?mongoDBID=<%= data.MongoDBUniqueId %>">@SharedLocalizer["Download"]</a></text>);
+                          columns.AddFor(m => m.Createdate).SortOrder(SortOrder.Desc).AllowEditing(false).Format("dd-MM-yyyy").FormItem(formItem => { formItem.Visible(false); }).Caption(SharedLocalizer["SubmittedOn"]);
+                      })
+                      .DataSource(d => d.Mvc().Controller("JobSeekerGrieveance").LoadAction("GetAllJobSeekerGrieveanceResume")
+                      .LoadParams(new { resumeid = new JS("getResumeId") })
+                      .InsertAction("Post")
+                      //    .DeleteAction("Delete")
+                      .Key("Id")))
+}
